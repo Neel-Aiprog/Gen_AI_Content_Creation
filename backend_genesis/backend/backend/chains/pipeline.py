@@ -1,31 +1,90 @@
 from langchain_huggingface import ChatHuggingFace,HuggingFacePipeline
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
-from .seo_chain import seo_chain1
-from .keyword_chain import keyword_chain1
-from .outline_chain import outline_chain1
-from .section_chain import section_chain1
 from langchain_core.runnables import RunnableParallel
 from langchain_core.prompts import PromptTemplate
+import json
+from ..prompts.input_prompt import input_template
+import regex as re
 load_dotenv()
-text="cricket"
-LLM=HuggingFacePipeline.from_model_id(
-    model_id="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-    task="text-generation"
-)
-model=ChatHuggingFace(llm=LLM)
-blog_template=PromptTemplate(
-    template="generate a blog from the given text through the keywords obtained,seo optimised words , and sections and outline obtained\n{keywords},{seo},{outline},{section} ",
-    input_variables=['keywords','seo','outline','section']
-)
+from ..chains.model import get_llm
+LLM=get_llm()
+def format_outline(outline):
+    text = []
+    for item in outline:
+        text.append(f"H2: {item['h2']}")
+        for h3 in item["h3"]:
+            text.append(f"  - H3: {h3}")
+    return "\n".join(text)
+def format_sections(sections):
+    blocks = []
+    for heading, points in sections.items():
+        blocks.append(f"{heading}:")
+        for p in points:
+            blocks.append(f"- {p}")
+    return "\n".join(blocks)
+def format_keywords(keywords):
+    return (
+        "Primary: " + ", ".join(keywords["primary"][:3]) +
+        "\nSecondary: " + ", ".join(keywords["secondary"][:5])
+    )
+def extract_json(text: str):
+    """
+    Extract the first JSON object from an LLM response string.
+    """
+    match = re.search(r"\{[\s\S]*\}", text)
+    if not match:
+        raise ValueError("No JSON object found in model output")
+    return json.loads(match.group())
+
+
+
+
 parser=StrOutputParser()
-parallel_chain=RunnableParallel({
-    'keywords':keyword_chain1,
-    'seo':seo_chain1,
-    'outline':outline_chain1,
-    'section':section_chain1
+chain1=input_template|LLM|parser
+
+
+if __name__ == "__main__":
+    result=chain1.invoke({"text":'cricket'})
+    data = extract_json(result)
+    outline_text = format_outline(data["outline"])
+    sections_text = format_sections(data["sections"])
+    keywords_text = format_keywords(data["keywords"])
+    blog_template = PromptTemplate(
+    template="""
+Write a 100-word SEO-optimized blog.
+
+SEO: {seo}
+Keywords:
+{keywords_text}
+
+Outline:
+{outline_text}
+
+Section guidance:
+{sections_text}
+
+Rules:
+- Follow outline strictly
+- Expand only given bullet points
+- Use keywords naturally
+- No new headings
+""",
+    input_variables=[
+        "seo",
+        "outline_text",
+        "sections_text",
+        "keywords_text",
+    ],
+)
+
+    chain2=blog_template|LLM|parser
+    final_result = chain2.invoke({
+    "seo": data.get("seo", ""),
+    "outline_text": outline_text,
+    "sections_text": sections_text,
+    "keywords_text": keywords_text,
 })
-merge_chain=blog_template|model|parser
-chain=parallel_chain|merge_chain
-result=chain.invoke({'text':text})
-print(result)
+
+    print(final_result)
+    
