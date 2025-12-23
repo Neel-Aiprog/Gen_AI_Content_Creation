@@ -1,90 +1,79 @@
-from langchain_huggingface import ChatHuggingFace,HuggingFacePipeline
-from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
-from langchain_core.runnables import RunnableParallel
-from langchain_core.prompts import PromptTemplate
-import json
-from ..prompts.input_prompt import input_template
-import regex as re
 load_dotenv()
+
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+from ..prompts.input_prompt import input_template
 from ..chains.model import get_llm
-LLM=get_llm()
-def format_outline(outline):
-    text = []
-    for item in outline:
-        text.append(f"H2: {item['h2']}")
-        for h3 in item["h3"]:
-            text.append(f"  - H3: {h3}")
-    return "\n".join(text)
-def format_sections(sections):
-    blocks = []
-    for heading, points in sections.items():
-        blocks.append(f"{heading}:")
-        for p in points:
-            blocks.append(f"- {p}")
-    return "\n".join(blocks)
-def format_keywords(keywords):
-    return (
-        "Primary: " + ", ".join(keywords["primary"][:3]) +
-        "\nSecondary: " + ", ".join(keywords["secondary"][:5])
-    )
-def extract_json(text: str):
-    """
-    Extract the first JSON object from an LLM response string.
-    """
-    match = re.search(r"\{[\s\S]*\}", text)
-    if not match:
-        raise ValueError("No JSON object found in model output")
-    return json.loads(match.group())
+
+
+# --------------------------------------------------
+# LLM
+# --------------------------------------------------
+LLM = get_llm()
+parser = StrOutputParser()
+
+def extract_after_marker(text: str, marker="=== OUTPUT START ==="):
+    if marker in text:
+        return text.split(marker, 1)[1].strip()
+    return text.strip()
+
+# --------------------------------------------------
+# Chain 1: Topic → Plain-text SEO Plan
+# --------------------------------------------------
+# NOTE: input_template MUST be the SIMPLE STRING version
+chain1 = input_template | LLM.bind(stop=["\n\n"]) | parser
 
 
 
-
-parser=StrOutputParser()
-chain1=input_template|LLM|parser
-
-
-if __name__ == "__main__":
-    result=chain1.invoke({"text":'cricket'})
-    data = extract_json(result)
-    outline_text = format_outline(data["outline"])
-    sections_text = format_sections(data["sections"])
-    keywords_text = format_keywords(data["keywords"])
-    blog_template = PromptTemplate(
+# --------------------------------------------------
+# Chain 2: Plan → Blog
+# --------------------------------------------------
+blog_template = PromptTemplate(
     template="""
-Write a 100-word SEO-optimized blog.
+You are given a CONTENT PLAN below.
 
-SEO: {seo}
-Keywords:
-{keywords_text}
+Your task is to TRANSFORM it into ONE unified blog article.
 
-Outline:
-{outline_text}
+RULES (VERY IMPORTANT):
+- IGNORE all labels such as SEO Title, Meta Description, H2, H3, Keywords
+- DO NOT repeat or mention labels
+- DO NOT explain the plan
+- DO NOT summarize sections separately
+- MERGE all ideas into a single, smooth blog article
+- Write in paragraph form only
+- Target approximately 100 words
+- Output ONLY the final blog text
 
-Section guidance:
-{sections_text}
+CONTENT PLAN:
+{plan}
 
-Rules:
-- Follow outline strictly
-- Expand only given bullet points
-- Use keywords naturally
-- No new headings
+FINAL BLOG ARTICLE:
 """,
-    input_variables=[
-        "seo",
-        "outline_text",
-        "sections_text",
-        "keywords_text",
-    ],
+    input_variables=["plan"],
 )
 
-    chain2=blog_template|LLM|parser
-    final_result = chain2.invoke({
-    "seo": data.get("seo", ""),
-    "outline_text": outline_text,
-    "sections_text": sections_text,
-    "keywords_text": keywords_text,
-})
 
-    print(final_result)
-    
+chain2 = blog_template | LLM | parser
+
+
+# --------------------------------------------------
+# Main execution
+# --------------------------------------------------
+if __name__ == "__main__":
+    topic = "langchain"
+
+    # ---- Chain 1 (Planning)
+    raw_plan = chain1.invoke({"text": topic})
+    plan_text = extract_after_marker(raw_plan)
+
+    print("\n=== PLAN OUTPUT ===\n")
+    print(plan_text)
+
+    # ---- Chain 2 (Blog Writing)
+    blog_text = chain2.invoke({"plan": plan_text})
+
+    print("\n=== FINAL BLOG OUTPUT ===\n")
+    print(blog_text)
+    exit()

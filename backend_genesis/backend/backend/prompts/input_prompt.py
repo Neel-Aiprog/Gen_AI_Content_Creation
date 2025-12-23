@@ -1,37 +1,38 @@
 from langchain_core.prompts import PromptTemplate
 
-# In your input_prompt.py or main file
 input_template = PromptTemplate(
     template="""
-    You are an expert SEO content strategist. 
-    
-    Task: Generate a detailed blog outline, keywords, and SEO metadata for the topic: "{text}".
-    
-    Instructions:
-    1. Analyze the topic deeply.
-    2. Populate the JSON schema below with specific, high-quality content.
-    3. Return ONLY valid JSON. No markdown formatting (like ```json), no explanations.
-    
-    Required JSON Structure:
-    {{
-      "keywords": {{
-        "primary": ["list 3 specific primary keywords here"],
-        "secondary": ["list 5 specific secondary keywords here"]
-      }},
-      "outline": [
-        {{
-          "h2": "Write a compelling H2 heading here",
-          "h3": ["H3 subtopic 1", "H3 subtopic 2"]
-        }}
-      ],
-      "sections": {{
-        "Write the same H2 heading here": ["detailed talking point 1", "detailed talking point 2", "detailed talking point 3"]
-      }},
-      "seo": {{
-        "meta_title": "Write a catchy SEO title here",
-        "meta_description": "Write a 150-char meta description here"
-      }}
-    }}
-    """,
+You are an SEO content planner.
+
+Topic: {text}
+
+Your task:
+Create ONE clean, combined SEO content plan.
+
+IMPORTANT:
+- Do NOT write any introductory paragraphs
+- Do NOT repeat sections
+- Do NOT explain anything
+- Do NOT add examples or case studies
+- Combine everything into a SINGLE structured plan
+
+Write ONLY the following sections, exactly once, in this order:
+
+SEO Title:
+SEO Meta Description:
+Primary Keywords (3, comma separated):
+Secondary Keywords (5, comma separated):
+H2 Heading:
+H3 Subtopic 1:
+H3 Subtopic 2:
+Section Points:
+- point 1
+- point 2
+- point 3
+
+Do NOT write anything before or after this plan.
+
+=== OUTPUT START ===
+""",
     input_variables=["text"],
 )
