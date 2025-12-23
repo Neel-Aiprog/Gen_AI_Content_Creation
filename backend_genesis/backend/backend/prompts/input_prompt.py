@@ -5,9 +5,9 @@ input_template = PromptTemplate(
 You are an SEO content planner.
 
 Topic: {text}
-
+Tone:{tone}
 Your task:
-Create ONE clean, combined SEO content plan.
+Create ONE clean, combined SEO content plan according to the tone.
 
 IMPORTANT:
 - Do NOT write any introductory paragraphs
@@ -34,5 +34,5 @@ Do NOT write anything before or after this plan.
 
 === OUTPUT START ===
 """,
-    input_variables=["text"],
+    input_variables=["text","tone"],
 )

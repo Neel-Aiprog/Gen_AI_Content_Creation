@@ -18,7 +18,10 @@ def extract_after_marker(text: str, marker="=== OUTPUT START ==="):
     if marker in text:
         return text.split(marker, 1)[1].strip()
     return text.strip()
-
+def extract_result_marker(text: str, marker="FINAL BLOG ARTICLE:"):
+    if marker in text:
+        return text.split(marker, 1)[1].strip()
+    return text.strip()
 # --------------------------------------------------
 # Chain 1: Topic → Plain-text SEO Plan
 # --------------------------------------------------
@@ -65,15 +68,13 @@ if __name__ == "__main__":
     topic = "langchain"
 
     # ---- Chain 1 (Planning)
-    raw_plan = chain1.invoke({"text": topic})
+    raw_plan = chain1.invoke({"text": topic,"tone":"scientific"})
     plan_text = extract_after_marker(raw_plan)
 
-    print("\n=== PLAN OUTPUT ===\n")
-    print(plan_text)
+
 
     # ---- Chain 2 (Blog Writing)
     blog_text = chain2.invoke({"plan": plan_text})
-
-    print("\n=== FINAL BLOG OUTPUT ===\n")
-    print(blog_text)
+    final_result=extract_result_marker(blog_text)
+    print(final_result)
     exit()
