@@ -1,22 +1,28 @@
-# backend/chains/model.py
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
 
-from langchain_huggingface import HuggingFacePipeline
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
 
-_llm = None
 
-def get_llm():
-    global _llm
-    if _llm is None:
-        print("🔹 Loading mera model (once)...")
-        _llm = HuggingFacePipeline.from_model_id(
-            model_id="Qwen/Qwen2.5-1.5B-Instruct",
-            task="text-generation",
-            pipeline_kwargs={
-                "max_new_tokens": 800,   # LOWER = less RAM
-                "temperature": 0.7,
-            },
+load_dotenv()
+
+
+def get_llm() -> ChatGroq:
+    """Return a LangChain-compatible LLM instance using Groq.
+
+    This is imported in backend.chains.__init__ and used in pipeline.py
+    as a LangChain LLM (supports .bind, .invoke, and LCEL "|" piping).
+    """
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY environment variable is not set. "
+            "Set it in your .env file or shell environment."
         )
-    return _llm
+
+    return ChatGroq(
+        groq_api_key=api_key,
+        model_name="llama-3.1-8b-instant",
+        temperature=0.7,
+        max_tokens=1024,
+    )
