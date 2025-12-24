@@ -60,20 +60,12 @@ export default function Home() {
       <main className={styles.main}>
         <header className={styles.header}>
           <div className={styles.logoRow}>
-            <Image
-              className={styles.logo}
-              src="/next.svg"
-              alt="Next.js logo"
-              width={100}
-              height={20}
-              priority
-            />
             <span className={styles.badge}>Genesis · AI Content Builder</span>
           </div>
           <h1 className={styles.title}>Generate SEO blog content with AI</h1>
           <p className={styles.subtitle}>
-            Enter a topic and tone, and we&apos;ll create both an SEO content plan and a
-            short blog article using your backend LLM pipeline.
+            Enter a topic and tone, and we&apos;ll create a
+            short blog article .
           </p>
         </header>
 
@@ -124,18 +116,6 @@ export default function Home() {
           </form>
 
           <div className={styles.results}>
-            <div className={styles.resultCard}>
-              <h2 className={styles.resultTitle}>SEO Plan</h2>
-              <div className={styles.resultBody}>
-                {plan ? (
-                  <pre className={styles.pre}>{plan}</pre>
-                ) : (
-                  <p className={styles.placeholder}>
-                    The structured SEO plan from the LLM will appear here.
-                  </p>
-                )}
-              </div>
-            </div>
 
             <div className={styles.resultCard}>
               <h2 className={styles.resultTitle}>Generated Blog Article</h2>

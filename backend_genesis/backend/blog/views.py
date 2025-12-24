@@ -44,7 +44,7 @@ def generate_blog(request):
         raw_blog = chain2.invoke({"plan": plan_text, "topic": topic})
         blog_text = extract_result_marker(raw_blog)
 
-    except Exception as exc:  # noqa: BLE001 - surface generation issues to client in dev
+    except Exception as exc:  
         return JsonResponse(
             {
                 "detail": "Error while generating content",

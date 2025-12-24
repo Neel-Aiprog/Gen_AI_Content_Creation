@@ -8,9 +8,7 @@ from ..prompts.input_prompt import input_template
 from ..chains.model import get_llm
 
 
-# --------------------------------------------------
-# LLM
-# --------------------------------------------------
+
 LLM = get_llm()
 parser = StrOutputParser()
 
@@ -22,17 +20,11 @@ def extract_result_marker(text: str, marker="FINAL BLOG ARTICLE:"):
     if marker in text:
         return text.split(marker, 1)[1].strip()
     return text.strip()
-# --------------------------------------------------
-# Chain 1: Topic → Plain-text SEO Plan
-# --------------------------------------------------
-# NOTE: input_template MUST be the SIMPLE STRING version
 chain1 = input_template | LLM.bind(stop=["\n\n"]) | parser
 
 
 
-# --------------------------------------------------
-# Chain 2: Plan → Blog
-# --------------------------------------------------
+
 blog_template = PromptTemplate(
     template="""
 You are given a CONTENT PLAN between the triple backticks below.
@@ -67,19 +59,14 @@ Now write the final blog article about "{topic}":
 chain2 = blog_template | LLM | parser
 
 
-# --------------------------------------------------
-# Main execution
-# --------------------------------------------------
 if __name__ == "__main__":
-    topic = "langchain"
 
-    # ---- Chain 1 (Planning)
-    raw_plan = chain1.invoke({"text": topic,"tone":"scientific"})
+    raw_plan = chain1.invoke({"text": "topic","tone":"scientific"})
     plan_text = extract_after_marker(raw_plan)
 
 
 
-    # ---- Chain 2 (Blog Writing)
+    
     blog_text = chain2.invoke({"plan": plan_text})
     final_result=extract_result_marker(blog_text)
     print(final_result)
