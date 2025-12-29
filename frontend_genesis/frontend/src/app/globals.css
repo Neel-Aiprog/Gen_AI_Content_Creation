@@ -1,3 +1,118 @@
+/* ===== CKEDITOR DARK THEME ===== */
+
+/* ===== CKEDITOR DROPDOWN DARK FIX ===== */
+
+/* Dropdown panel background */
+.ck-dropdown__panel {
+  background-color: #020617 !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Dropdown list */
+.ck-list {
+  background-color: #020617 !important;
+}
+
+/* Dropdown items */
+.ck-list__item {
+  color: #e5e7eb !important;
+}
+
+/* Item buttons */
+.ck-list__item .ck-button {
+  background: transparent !important;
+  color: #e5e7eb !important;
+}
+
+/* Hover state */
+.ck-list__item .ck-button:hover {
+  background-color: #1e293b !important;
+  color: #f9fafb !important;
+}
+
+/* Active / selected item */
+.ck-list__item .ck-button.ck-on {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+/* Disabled headings (ghost text issue) */
+.ck-list__item .ck-button:disabled {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+
+/* Editor outer container */
+.ck-editor {
+  background: #020617;
+  border-radius: 12px;
+}
+
+/* Editable area */
+.ck-editor__editable {
+  background: #020617 !important;
+  color: #e5e7eb !important;
+  min-height: 300px;
+  padding: 16px;
+}
+
+/* Paragraph text */
+.ck-content p {
+  color: #e5e7eb !important;
+}
+
+/* Headings */
+.ck-content h1,
+.ck-content h2,
+.ck-content h3,
+.ck-content h4 {
+  color: #f9fafb !important;
+}
+
+/* Toolbar */
+.ck-toolbar {
+  background: #020617 !important;
+  border: 1px solid #1e293b !important;
+}
+
+/* Toolbar buttons */
+.ck-button {
+  color: #e5e7eb !important;
+}
+
+/* Toolbar button hover */
+.ck-button:hover,
+.ck-button.ck-on {
+  background: #1e293b !important;
+}
+
+/* Dropdowns */
+.ck-dropdown__panel {
+  background: #020617 !important;
+  color: #e5e7eb !important;
+}
+
+/* Borders */
+.ck-editor__main {
+  border: 1px solid #1e293b !important;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Focus outline */
+.ck-editor__editable.ck-focused {
+  outline: none !important;
+  box-shadow: 0 0 0 1px #38bdf8;
+}
+
+/* Selection color */
+.ck-content ::selection {
+  background: #38bdf8;
+  color: #020617;
+}
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

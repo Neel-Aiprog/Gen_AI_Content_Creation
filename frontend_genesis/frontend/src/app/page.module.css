@@ -274,3 +274,12 @@
     background: #0b1120;
   }
 }
+
+.ck-editor__editable {
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: auto;
+}
