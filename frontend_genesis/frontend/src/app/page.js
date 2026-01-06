@@ -26,6 +26,8 @@ function injectImagesIntoHtml(text, images) {
 }
 
 
+const API_URL = "http://localhost:8000/api/generate-blog/";
+
 export default function Home() {
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState("scientific");
