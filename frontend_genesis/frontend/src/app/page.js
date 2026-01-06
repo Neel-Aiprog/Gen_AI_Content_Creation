@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import dynamic from 'next/dynamic';
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -13,6 +15,18 @@ export default function Home() {
   const [article, setArticle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const editorRef = useRef(null);
+  const [editorLoaded, setEditorLoaded] = useState(false);
+
+  useEffect(() => {
+    import('@ckeditor/ckeditor5-build-classic').then(mod => {
+      editorRef.current = mod.default;
+      setEditorLoaded(true);
+    });
+  }, []);
+
+  // Use the Next.js API route, which proxies to the Django backend.
+  const API_URL = "/api/generate-blog";
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -47,7 +61,7 @@ export default function Home() {
       console.error(err);
       setError(
         "Something went wrong while generating content. Make sure the backend API is running at " +
-          API_URL
+        API_URL
       );
     } finally {
       setLoading(false);
@@ -59,20 +73,12 @@ export default function Home() {
       <main className={styles.main}>
         <header className={styles.header}>
           <div className={styles.logoRow}>
-            <Image
-              className={styles.logo}
-              src="/next.svg"
-              alt="Next.js logo"
-              width={100}
-              height={20}
-              priority
-            />
             <span className={styles.badge}>Genesis · AI Content Builder</span>
           </div>
           <h1 className={styles.title}>Generate SEO blog content with AI</h1>
           <p className={styles.subtitle}>
-            Enter a topic and tone, and we&apos;ll create both an SEO content plan and a
-            short blog article using your backend LLM pipeline.
+            Enter a topic and tone, and we&apos;ll create a
+            short blog article .
           </p>
         </header>
 
@@ -123,24 +129,22 @@ export default function Home() {
           </form>
 
           <div className={styles.results}>
-            <div className={styles.resultCard}>
-              <h2 className={styles.resultTitle}>SEO Plan</h2>
-              <div className={styles.resultBody}>
-                {plan ? (
-                  <pre className={styles.pre}>{plan}</pre>
-                ) : (
-                  <p className={styles.placeholder}>
-                    The structured SEO plan from the LLM will appear here.
-                  </p>
-                )}
-              </div>
-            </div>
 
             <div className={styles.resultCard}>
               <h2 className={styles.resultTitle}>Generated Blog Article</h2>
               <div className={styles.resultBody}>
-                {article ? (
-                  <p className={styles.article}>{article}</p>
+                {article && editorLoaded ? (
+                  <CKEditor
+                    editor={editorRef.current}
+                    onReady={(editor) => {
+                      editor.setData(article);
+                      editor.ui.view.editable.element.style.height = '300px';
+                    }}
+                    onChange={(event, editor) => setArticle(editor.getData())}
+                    config={{
+                      toolbar: ['heading', '|', 'bold', 'italic', 'link', '|', 'bulletedList', 'numberedList', '|', 'undo', 'redo'],
+                    }}
+                  />
                 ) : (
                   <p className={styles.placeholder}>
                     The final ~100-word blog article will appear here.
