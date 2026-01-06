@@ -1,5 +1,5 @@
 import json
-
+import os, requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -9,10 +9,21 @@ from backend.chains.pipeline import (
     extract_after_marker,
     extract_result_marker,
 )
+def fetch_images(request):
+    query = request.GET.get("q")
+    url = f"https://api.pexels.com/v1/search?query={query}&per_page=3"
 
+    headers = {
+        "Authorization": os.getenv("PEXELS_API_KEY")
+    }
+
+    r = requests.get(url, headers=headers)
+    return JsonResponse(r.json(), safe=False)
 
 @csrf_exempt
 def generate_blog(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
     """Generate SEO plan and blog article from topic + tone.
 
     Expected JSON body:

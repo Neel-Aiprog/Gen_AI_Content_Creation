@@ -2,65 +2,72 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import dynamic from 'next/dynamic';
-import Image from "next/image";
 import styles from "./page.module.css";
+function injectImagesIntoHtml(text, images) {
+  if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
+
+  const paragraphs = text.split(/\n+/).map(p => `<p>${p}</p>`);
+  let i = 0;
+
+  return paragraphs.map((p, idx) => {
+    if (idx > 0 && idx % 2 === 0 && i < images.length) {
+      const img = images[i++];
+      return `
+        ${p}
+        <p style="text-align:center">
+          <img src="${img.src.large}" style="max-width:100%;border-radius:14px"/>
+          <br/>
+          <em style="font-size:13px;color:#aaa">${img.alt || ""}</em>
+        </p>
+      `;
+    }
+    return p;
+  }).join("");
+}
+
 
 export default function Home() {
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState("scientific");
-  const [plan, setPlan] = useState("");
   const [article, setArticle] = useState("");
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const editorRef = useRef(null);
   const [editorLoaded, setEditorLoaded] = useState(false);
 
   useEffect(() => {
-    import('@ckeditor/ckeditor5-build-classic').then(mod => {
-      editorRef.current = mod.default;
-      setEditorLoaded(true);
-    });
-  }, []);
+  import('@ckeditor/ckeditor5-build-classic').then(mod => {
+    editorRef.current = mod.default;
+    setEditorLoaded(true);
+  });
+}, []);
 
-  // Use the Next.js API route, which proxies to the Django backend.
-  const API_URL = "/api/generate-blog";
 
-  async function handleSubmit(event) {
-    event.preventDefault();
 
-    if (!topic.trim()) {
-      setError("Please enter a topic.");
-      return;
-    }
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!topic.trim()) return setError("Please enter a topic.");
 
     setLoading(true);
     setError("");
-    setPlan("");
     setArticle("");
+    setPhotos([]);
 
     try {
-      const response = await fetch(API_URL, {
+      const res = await fetch("/api/generate-blog", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, tone }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
+      const data = await res.json();
+      const embedded = injectImagesIntoHtml(data.blog, data.images);
+setArticle(embedded);
+setPhotos(data.images || []);
 
-      const data = await response.json();
-      setPlan(data.plan || "");
-      setArticle(data.blog || data.article || "");
     } catch (err) {
-      console.error(err);
-      setError(
-        "Something went wrong while generating content. Make sure the backend API is running at " +
-        API_URL
-      );
+      setError("Backend error. Make sure servers are running.");
     } finally {
       setLoading(false);
     }
@@ -69,89 +76,70 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <header className={styles.header}>
-          <div className={styles.logoRow}>
-            <span className={styles.badge}>Genesis · AI Content Builder</span>
-          </div>
-          <h1 className={styles.title}>Generate SEO blog content with AI</h1>
-          <p className={styles.subtitle}>
-            Enter a topic and tone, and we&apos;ll create a
-            short blog article .
-          </p>
-        </header>
+        <h1 className={styles.title}>Genesis · AI Blog Generator</h1>
 
-        <section className={styles.content}>
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.fieldGroup}>
-              <label htmlFor="topic" className={styles.label}>
-                Topic
-              </label>
-              <textarea
-                id="topic"
-                className={styles.textarea}
-                placeholder="e.g. Introduction to LangChain for beginners"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                rows={4}
-              />
-            </div>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <textarea
+            className={styles.textarea}
+            placeholder="Enter blog topic..."
+            value={topic}
+            onChange={e => setTopic(e.target.value)}
+          />
 
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldGroup}>
-                <label htmlFor="tone" className={styles.label}>
-                  Tone
-                </label>
-                <select
-                  id="tone"
-                  className={styles.select}
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value)}
-                >
-                  <option value="scientific">Scientific</option>
-                  <option value="professional">Professional</option>
-                  <option value="casual">Casual</option>
-                  <option value="storytelling">Storytelling</option>
-                </select>
-              </div>
+          <select
+            className={styles.select}
+            value={tone}
+            onChange={e => setTone(e.target.value)}
+          >
+            <option value="scientific">Scientific</option>
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="storytelling">Storytelling</option>
+          </select>
 
-              <button
-                type="submit"
-                className={styles.generateButton}
-                disabled={loading}
-              >
-                {loading ? "Generating..." : "Generate"}
-              </button>
-            </div>
+          <button className={styles.generateButton} disabled={loading}>
+            {loading ? "Generating..." : "Generate Blog"}
+          </button>
+        </form>
 
-            {error && <p className={styles.error}>{error}</p>}
-          </form>
+        {error && <p className={styles.error}>{error}</p>}
 
-          <div className={styles.results}>
+        
 
-            <div className={styles.resultCard}>
-              <h2 className={styles.resultTitle}>Generated Blog Article</h2>
-              <div className={styles.resultBody}>
-                {article && editorLoaded ? (
-                  <CKEditor
-                    editor={editorRef.current}
-                    onReady={(editor) => {
-                      editor.setData(article);
-                      editor.ui.view.editable.element.style.height = '300px';
-                    }}
-                    onChange={(event, editor) => setArticle(editor.getData())}
-                    config={{
-                      toolbar: ['heading', '|', 'bold', 'italic', 'link', '|', 'bulletedList', 'numberedList', '|', 'undo', 'redo'],
-                    }}
-                  />
-                ) : (
-                  <p className={styles.placeholder}>
-                    The final ~100-word blog article will appear here.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+        <div className={styles.editorBox}>
+  <div ref={el => (editorRef.toolbarContainer = el)} />
+
+  {article && editorLoaded && (
+    <CKEditor
+      editor={editorRef.current}
+      data={article}
+      onReady={(editor) => {
+  if (editorRef.toolbarContainer) {
+    editorRef.toolbarContainer.innerHTML = "";  // 🔥 clear old toolbar
+    editorRef.toolbarContainer.appendChild(editor.ui.view.toolbar.element);
+  }
+}}
+
+
+      onChange={(e, editor) => setArticle(editor.getData())}
+      config={{
+  toolbar: [
+    'heading','|','bold','italic','link',
+    '|','imageUpload','insertImage',
+    '|','bulletedList','numberedList',
+    '|','undo','redo'
+  ],
+  image: {
+    toolbar: [ 'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block' ]
+  }
+}}
+
+
+
+    />
+  )}
+</div>
+
       </main>
     </div>
   );
