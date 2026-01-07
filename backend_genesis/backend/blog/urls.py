@@ -1,8 +1,7 @@
 from django.urls import path
-
-from . import views
+from .views import generate_blog, fetch_images
 
 urlpatterns = [
-    path("generate-blog/", views.generate_blog, name="generate-blog"),
-    path("pexels/", views.fetch_images,name="fetch_images"),
+    path("generate-blog/", generate_blog),
+    path("unsplash/", fetch_images),   # cleaner route
 ]

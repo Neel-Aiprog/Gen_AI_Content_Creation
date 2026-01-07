@@ -9,29 +9,33 @@ from backend.chains.pipeline import (
     extract_after_marker,
     extract_result_marker,
 )
+
+
+# 🔥 UNSPLASH IMAGE FETCHER
 def fetch_images(request):
     query = request.GET.get("q")
-    url = f"https://api.pexels.com/v1/search?query={query}&per_page=3"
+
+    url = "https://api.unsplash.com/search/photos"
 
     headers = {
-        "Authorization": os.getenv("PEXELS_API_KEY")
+        "Authorization": f"Client-ID {os.getenv('UNSPLASH_ACCESS_KEY')}"
     }
 
-    r = requests.get(url, headers=headers)
+    params = {
+        "query": query,
+        "per_page": 6,
+        "orientation": "landscape"
+    }
+
+    r = requests.get(url, headers=headers, params=params, timeout=20)
     return JsonResponse(r.json(), safe=False)
+
 
 @csrf_exempt
 def generate_blog(request):
     if request.method == "OPTIONS":
         return JsonResponse({"status": "ok"})
-    """Generate SEO plan and blog article from topic + tone.
 
-    Expected JSON body:
-    {
-      "topic": "some topic",
-      "tone": "scientific" | "professional" | "casual" | "storytelling"
-    }
-    """
     if request.method != "POST":
         return JsonResponse({"detail": "Method not allowed"}, status=405)
 
@@ -47,15 +51,15 @@ def generate_blog(request):
         return JsonResponse({"detail": "'topic' is required"}, status=400)
 
     try:
-        # Chain 1: topic + tone -> structured SEO plan
+        # Chain 1 → SEO plan
         raw_plan = chain1.invoke({"text": topic, "tone": tone})
         plan_text = extract_after_marker(raw_plan)
 
-        # Chain 2: plan + topic -> unified blog article (kept on-topic)
+        # Chain 2 → Final blog
         raw_blog = chain2.invoke({"plan": plan_text, "topic": topic})
         blog_text = extract_result_marker(raw_blog)
 
-    except Exception as exc:  
+    except Exception as exc:
         return JsonResponse(
             {
                 "detail": "Error while generating content",

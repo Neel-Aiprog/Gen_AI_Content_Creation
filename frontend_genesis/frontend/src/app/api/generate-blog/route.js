@@ -14,7 +14,7 @@ export async function POST(request) {
     const body = await request.json();
     const topic = body.topic;
 
-    // 1️⃣ Generate blog
+    /* 1️⃣ Generate blog from Django */
     const blogRes = await fetch("http://localhost:8000/api/generate-blog/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -23,17 +23,18 @@ export async function POST(request) {
 
     const blogData = await blogRes.json();
 
-    // 2️⃣ Fetch images
+    /* 2️⃣ Fetch UNSPLASH images from Django */
     const imgRes = await fetch(
-      `http://localhost:8000/utils-api/pexels/?q=${encodeURIComponent(topic)}`
+      `http://localhost:8000/api/unsplash/?q=${encodeURIComponent(topic)}`
     );
+
     const imgData = await imgRes.json();
 
-    // 3️⃣ Combine
+    /* 3️⃣ Combine blog + images */
     return new Response(
       JSON.stringify({
         ...blogData,
-        images: imgData.photos || []
+        images: imgData.results || []
       }),
       {
         status: 200,
@@ -43,7 +44,11 @@ export async function POST(request) {
         },
       }
     );
+
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: String(err) }),
+      { status: 500 }
+    );
   }
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import styles from "./page.module.css";
+
+/* 🔥 UNSPLASH HTML INJECTOR */
 function injectImagesIntoHtml(text, images) {
   if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
 
@@ -15,9 +17,14 @@ function injectImagesIntoHtml(text, images) {
       return `
         ${p}
         <p style="text-align:center">
-          <img src="${img.src.large}" style="max-width:100%;border-radius:14px"/>
+          <img 
+            src="${img.urls.regular}" 
+            style="max-width:100%;border-radius:14px" 
+          />
           <br/>
-          <em style="font-size:13px;color:#aaa">${img.alt || ""}</em>
+          <em style="font-size:13px;color:#aaa">
+            ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
+          </em>
         </p>
       `;
     }
@@ -25,27 +32,23 @@ function injectImagesIntoHtml(text, images) {
   }).join("");
 }
 
-
-const API_URL = "http://localhost:8000/api/generate-blog/";
-
 export default function Home() {
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState("scientific");
   const [article, setArticle] = useState("");
-  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const editorRef = useRef(null);
+  const toolbarRef = useRef(null);
   const [editorLoaded, setEditorLoaded] = useState(false);
 
   useEffect(() => {
-  import('@ckeditor/ckeditor5-build-classic').then(mod => {
-    editorRef.current = mod.default;
-    setEditorLoaded(true);
-  });
-}, []);
-
-
+    import('@ckeditor/ckeditor5-build-classic').then(mod => {
+      editorRef.current = mod.default;
+      setEditorLoaded(true);
+    });
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -54,7 +57,6 @@ export default function Home() {
     setLoading(true);
     setError("");
     setArticle("");
-    setPhotos([]);
 
     try {
       const res = await fetch("/api/generate-blog", {
@@ -65,10 +67,9 @@ export default function Home() {
 
       const data = await res.json();
       const embedded = injectImagesIntoHtml(data.blog, data.images);
-setArticle(embedded);
-setPhotos(data.images || []);
+      setArticle(embedded);
 
-    } catch (err) {
+    } catch {
       setError("Backend error. Make sure servers are running.");
     } finally {
       setLoading(false);
@@ -106,42 +107,32 @@ setPhotos(data.images || []);
 
         {error && <p className={styles.error}>{error}</p>}
 
-        
-
         <div className={styles.editorBox}>
-  <div ref={el => (editorRef.toolbarContainer = el)} />
+          <div ref={toolbarRef} />
 
-  {article && editorLoaded && (
-    <CKEditor
-      editor={editorRef.current}
-      data={article}
-      onReady={(editor) => {
-  if (editorRef.toolbarContainer) {
-    editorRef.toolbarContainer.innerHTML = "";  // 🔥 clear old toolbar
-    editorRef.toolbarContainer.appendChild(editor.ui.view.toolbar.element);
-  }
-}}
-
-
-      onChange={(e, editor) => setArticle(editor.getData())}
-      config={{
-  toolbar: [
-    'heading','|','bold','italic','link',
-    '|','imageUpload','insertImage',
-    '|','bulletedList','numberedList',
-    '|','undo','redo'
-  ],
-  image: {
-    toolbar: [ 'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block' ]
-  }
-}}
-
-
-
-    />
-  )}
-</div>
-
+          {article && editorLoaded && (
+            <CKEditor
+              editor={editorRef.current}
+              data={article}
+              onReady={(editor) => {
+                toolbarRef.current.innerHTML = "";
+                toolbarRef.current.appendChild(editor.ui.view.toolbar.element);
+              }}
+              onChange={(e, editor) => setArticle(editor.getData())}
+              config={{
+                toolbar: [
+                  'heading','|','bold','italic','link',
+                  '|','imageUpload','insertImage',
+                  '|','bulletedList','numberedList',
+                  '|','undo','redo'
+                ],
+                image: {
+                  toolbar: [ 'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block' ]
+                }
+              }}
+            />
+          )}
+        </div>
       </main>
     </div>
   );
