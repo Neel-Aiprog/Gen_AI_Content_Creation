@@ -35,7 +35,8 @@ function injectImagesIntoHtml(text, images) {
 export default function Home() {
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState("scientific");
-  const [article, setArticle] = useState("");
+  const [article1, setArticle1] = useState("");
+  const [article2, setArticle2] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -56,7 +57,7 @@ export default function Home() {
 
     setLoading(true);
     setError("");
-    setArticle("");
+    setArticle1("");
 
     try {
       const res = await fetch("/api/generate-blog", {
@@ -67,7 +68,32 @@ export default function Home() {
 
       const data = await res.json();
       const embedded = injectImagesIntoHtml(data.blog, data.images);
-      setArticle(embedded);
+      setArticle1(embedded);
+
+    } catch {
+      setError("Backend error. Make sure servers are running.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRegen(e) {
+    e.preventDefault();
+    if (!topic.trim()) return setError("Please enter text.");
+
+    setLoading(true);
+    setError("");
+    setArticle2("");
+
+    try {
+      const res = await fetch("/api/regenerate-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, tone }),
+      });
+
+      const data = await res.json();
+      setArticle2(data.regened);
 
     } catch {
       setError("Backend error. Make sure servers are running.");
@@ -110,15 +136,70 @@ export default function Home() {
         <div className={styles.editorBox}>
           <div ref={toolbarRef} />
 
-          {article && editorLoaded && (
+          {article1 && editorLoaded && (
             <CKEditor
               editor={editorRef.current}
-              data={article}
+              data={article1}
               onReady={(editor) => {
                 toolbarRef.current.innerHTML = "";
                 toolbarRef.current.appendChild(editor.ui.view.toolbar.element);
               }}
-              onChange={(e, editor) => setArticle(editor.getData())}
+              onChange={(e, editor) => setArticle1(editor.getData())}
+              config={{
+                toolbar: [
+                  'heading','|','bold','italic','link',
+                  '|','imageUpload','insertImage',
+                  '|','bulletedList','numberedList',
+                  '|','undo','redo'
+                ],
+                image: {
+                  toolbar: [ 'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block' ]
+                }
+              }}
+            />
+          )}
+        </div>
+      </main>
+      <main className={styles.main}>
+        <h1 className={styles.title}>Regenerate text</h1>
+
+        <form className={styles.form} onSubmit={handleRegen}>
+          <textarea
+            className={styles.textarea}
+            placeholder="Enter text to be regenerated..."
+            value={topic}
+            onChange={e => setTopic(e.target.value)}
+          />
+
+          <select
+            className={styles.select}
+            value={tone}
+            onChange={e => setTone(e.target.value)}
+          >
+            <option value="scientific">Scientific</option>
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="storytelling">Storytelling</option>
+          </select>
+
+          <button className={styles.generateButton} disabled={loading}>
+            {loading ? "Regenerating..." : "Regenerate Text"}
+          </button>
+        </form>
+        {error && <p className={styles.error}>{error}</p>}
+
+        <div className={styles.editorBox}>
+          <div ref={toolbarRef} />
+
+          {article2 && editorLoaded && (
+            <CKEditor
+              editor={editorRef.current}
+              data={article2}
+              onReady={(editor) => {
+                toolbarRef.current.innerHTML = "";
+                toolbarRef.current.appendChild(editor.ui.view.toolbar.element);
+              }}
+              onChange={(e, editor) => setArticle2(editor.getData())}
               config={{
                 toolbar: [
                   'heading','|','bold','italic','link',

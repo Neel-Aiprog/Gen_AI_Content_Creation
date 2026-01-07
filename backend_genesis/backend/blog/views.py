@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from backend.chains.pipeline import (
     chain1,
     chain2,
+    regen_chain1,
     extract_after_marker,
     extract_result_marker,
 )
@@ -74,5 +75,45 @@ def generate_blog(request):
             "tone": tone,
             "plan": plan_text,
             "blog": blog_text,
+        }
+    )
+
+@csrf_exempt
+def regenerate_text(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic") or "").strip()
+    tone = (payload.get("tone") or "scientific").strip() or "scientific"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_regen = regen_chain1.invoke({"text": topic, "tone": tone})
+        regen_text = extract_after_marker(raw_regen)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "regened": regen_text,
         }
     )

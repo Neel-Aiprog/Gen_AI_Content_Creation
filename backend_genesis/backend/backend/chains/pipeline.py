@@ -5,6 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from ..prompts.input_prompt import input_template
+from ..prompts.regen_prompt import input_regen_template
 from ..chains.model import get_llm
 
 
@@ -21,6 +22,7 @@ def extract_result_marker(text: str, marker="FINAL BLOG ARTICLE:"):
         return text.split(marker, 1)[1].strip()
     return text.strip()
 chain1 = input_template | LLM.bind(stop=["\n\n"]) | parser
+regen_chain1 = input_regen_template | LLM | parser
 
 
 
@@ -42,7 +44,7 @@ RULES (VERY IMPORTANT):
 - DO NOT summarize sections separately.
 - MERGE all ideas into a single, smooth blog article.
 - Write in paragraph form only (no bullet lists, no step-by-step guides).
-- Target approximately 100 words.
+- Target approximately 100 words unless specified in topic.
 - Output ONLY the final blog text (no headings like "CONTENT PLAN" or explanations, and no meta-commentary about writing a blog).
 
 CONTENT PLAN (between backticks):
@@ -56,18 +58,26 @@ Now write the final blog article about "{topic}":
 )
 
 
+
+
+
+
 chain2 = blog_template | LLM | parser
 
 
 if __name__ == "__main__":
 
-    raw_plan = chain1.invoke({"text": "topic","tone":"scientific"})
+    raw_text = regen_chain1.invoke({"text": "killing men is bad","tone":"casual"})
+    regened_text = extract_after_marker(raw_text)
+
+
+    raw_plan = chain1.invoke({"text": "murder","tone":"casual"})
     plan_text = extract_after_marker(raw_plan)
 
-
-
+    blog = chain2.invoke({"plan": plan_text,"topic":"murder"})
+    final_blog = extract_result_marker(blog)
     
-    blog_text = chain2.invoke({"plan": plan_text})
-    final_result=extract_result_marker(blog_text)
-    print(final_result)
+    print(regened_text)
+    print("\n \n \n hi \n \n \n")
+    print(final_blog)
     exit()

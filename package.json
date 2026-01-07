@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@huggingface/inference": "^4.13.5",
+    "@langchain/community": "^1.1.1",
+    "@langchain/core": "^1.1.7",
+    "dotenv": "^16.6.1"
+  }
+}
