@@ -12,16 +12,16 @@ export async function OPTIONS() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const topic = body.topic1;
+    const topic = body.topic;
 
-    /* 1️⃣ Generate blog from Django */
-    const blogRes = await fetch("http://localhost:8000/api/generate-blog/", {
+    /* 1️⃣ Generate instagram post from Django */
+    const insta_postRes = await fetch("http://localhost:8000/api/instagram-post/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    const blogData = await blogRes.json();
+    const insta_postData = await insta_postRes.json();
 
     /* 2️⃣ Fetch UNSPLASH images from Django */
     const imgRes = await fetch(
@@ -30,10 +30,10 @@ export async function POST(request) {
 
     const imgData = await imgRes.json();
 
-    /* 3️⃣ Combine blog + images */
+    /* 3️⃣ Combine instagram post + images */
     return new Response(
       JSON.stringify({
-        ...blogData,
+        ...insta_postData,
         images: imgData.results || []
       }),
       {

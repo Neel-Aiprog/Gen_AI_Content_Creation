@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 import { useRouter } from 'next/navigation';
 
 export function MyButton({ to, children,  className = ''}) {
@@ -140,22 +140,22 @@ export default function Home() {
       {/* MAIN BLOG */}
       <main className={styles.main}>
       <div className={styles.buttonrow}>
-        <MyButton to="/blog" className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/blog" className={styles.NavButton}>
           Blog
         </MyButton>
-        <MyButton to="/tweet"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/tweet"className={styles.NavButton}>
           Twitter
         </MyButton>
-        <MyButton to="/yt_desc"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_desc"className={styles.NavButton}>
           Yt Desc
         </MyButton>
-        <MyButton to="/yt_script"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_script"className={styles.NavButton} >
           Yt Script
         </MyButton>
-        <MyButton to="/insta_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/insta_post"className={styles.NavButton}>
           Insta
         </MyButton>
-        <MyButton to="/reddit_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/reddit_post"className={styles.NavButton}>
           Reddit
         </MyButton>
       </div>

@@ -4,6 +4,10 @@ input_regen_template = PromptTemplate(
     template="""
 Rewrite the text below into a {tone} tone.
 
+=== TEXT START ===
+{text}
+=== TEXT END ===
+
 Requirements:
 - preserve meaning exactly
 - preserve factual content
@@ -14,9 +18,6 @@ Requirements:
 - do not quote the original text
 - output ONLY the rewritten text
 
-=== TEXT START ===
-{text}
-=== TEXT END ===
 
 Provide the final rewritten text only after the marker:
 

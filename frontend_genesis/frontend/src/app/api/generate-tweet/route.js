@@ -14,14 +14,14 @@ export async function POST(request) {
     const body = await request.json();
     const topic = body.topic1;
 
-    /* 1️⃣ Generate blog from Django */
-    const blogRes = await fetch("http://localhost:8000/api/generate-blog/", {
+    /* 1️⃣ Generate tweet from Django */
+    const tweetRes = await fetch("http://localhost:8000/api/generate-tweet/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    const blogData = await blogRes.json();
+    const tweetData = await tweetRes.json();
 
     /* 2️⃣ Fetch UNSPLASH images from Django */
     const imgRes = await fetch(
@@ -30,10 +30,10 @@ export async function POST(request) {
 
     const imgData = await imgRes.json();
 
-    /* 3️⃣ Combine blog + images */
+    /* 3️⃣ Combine tweet + images */
     return new Response(
       JSON.stringify({
-        ...blogData,
+        ...tweetData,
         images: imgData.results || []
       }),
       {

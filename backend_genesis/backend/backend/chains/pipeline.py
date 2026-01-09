@@ -6,6 +6,12 @@ from langchain_core.output_parsers import StrOutputParser
 
 from ..prompts.input_prompt import input_template
 from ..prompts.regen_prompt import input_regen_template
+from ..prompts.tweet_prompt import tweet_prompt_template
+from ..prompts.yt_desc_prompt import yt_desc_prompt_template
+from ..prompts.yt_script_prompt import yt_script_prompt_template
+from ..prompts.insta_prompt import insta_prompt_template
+from ..prompts.reddit_prompt import reddit_prompt_template
+
 from ..chains.model import get_llm
 
 
@@ -22,10 +28,18 @@ def extract_result_marker(text: str, marker="FINAL BLOG ARTICLE:"):
         return text.split(marker, 1)[1].strip()
     return text.strip()
 chain1 = input_template | LLM.bind(stop=["\n\n"]) | parser
-regen_chain1 = input_regen_template | LLM | parser
 
+regen_chain1 = input_regen_template | LLM |  parser
 
+tweet_chain = tweet_prompt_template | LLM | parser
 
+description_chain = yt_desc_prompt_template | LLM | parser
+
+script_chain = yt_script_prompt_template | LLM | parser
+
+insta_post_chain = insta_prompt_template | LLM | parser
+
+reddit_post_chain = reddit_prompt_template | LLM | parser
 
 blog_template = PromptTemplate(
     template="""
@@ -41,6 +55,7 @@ RULES (VERY IMPORTANT):
 - IGNORE all labels such as SEO Title, Meta Description, H2, H3, Keywords.
 - DO NOT repeat or mention labels.
 - DO NOT explain the plan.
+- Insert a blank line between each paragraph.
 - DO NOT summarize sections separately.
 - MERGE all ideas into a single, smooth blog article.
 - Write in paragraph form only (no bullet lists, no step-by-step guides).

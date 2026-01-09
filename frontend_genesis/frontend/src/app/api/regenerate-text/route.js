@@ -12,19 +12,19 @@ export async function OPTIONS() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const topic = body.topic;
+    const topic = body.topic2;
 
     /* 1️⃣ Regenerate text from Django */
-    const blogRes = await fetch("http://localhost:8000/api/regenerate-text/", {
+    const regenRes = await fetch("http://localhost:8000/api/regenerate-text/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    const blogData = await blogRes.json();
+    const regenData = await regenRes.json();
 
     return new Response(
-      JSON.stringify(blogData),
+      JSON.stringify(regenData),
       {
         status: 200,
         headers: {

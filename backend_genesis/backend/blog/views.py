@@ -7,6 +7,11 @@ from backend.chains.pipeline import (
     chain1,
     chain2,
     regen_chain1,
+    tweet_chain,
+    description_chain,
+    script_chain,
+    insta_post_chain,
+    reddit_post_chain,
     extract_after_marker,
     extract_result_marker,
 )
@@ -45,11 +50,11 @@ def generate_blog(request):
     except json.JSONDecodeError:
         return JsonResponse({"detail": "Invalid JSON body"}, status=400)
 
-    topic = (payload.get("topic") or "").strip()
+    topic = (payload.get("topic1") or "").strip()
     tone = (payload.get("tone") or "scientific").strip() or "scientific"
 
     if not topic:
-        return JsonResponse({"detail": "'topic' is required"}, status=400)
+        return JsonResponse({"detail": "'topic1' is required"}, status=400)
 
     try:
         # Chain 1 → SEO plan
@@ -91,7 +96,7 @@ def regenerate_text(request):
     except json.JSONDecodeError:
         return JsonResponse({"detail": "Invalid JSON body"}, status=400)
 
-    topic = (payload.get("topic") or "").strip()
+    topic = (payload.get("topic2") or "").strip()
     tone = (payload.get("tone") or "scientific").strip() or "scientific"
 
     if not topic:
@@ -117,6 +122,208 @@ def regenerate_text(request):
             "regened": regen_text,
         }
     )
+
+@csrf_exempt
+def generate_tweet(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic1") or "").strip()
+    tone = (payload.get("tone") or "casual").strip() or "casual"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_tweet = tweet_chain.invoke({"text": topic, "tone": tone})
+        tweet_text = extract_after_marker(raw_tweet)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "tweet": tweet_text,
+        }
+    )
+
+@csrf_exempt
+def youtube_description(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic1") or "").strip()
+    tone = (payload.get("tone") or "casual").strip() or "casual"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_description = description_chain.invoke({"text": topic, "tone": tone})
+        description_text = extract_after_marker(raw_description)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "description": description_text,
+        }
+    )
+
+@csrf_exempt
+def youtube_script(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic1") or "").strip()
+    tone = (payload.get("tone") or "casual").strip() or "casual"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_script = script_chain.invoke({"text": topic, "tone": tone})
+        script_text = extract_after_marker(raw_script)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "script": script_text,
+        }
+    )
+
+@csrf_exempt
+def instagram_post(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic1") or "").strip()
+    tone = (payload.get("tone") or "casual").strip() or "casual"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_insta_post = insta_post_chain.invoke({"text": topic, "tone": tone})
+        insta_post_text = extract_after_marker(raw_insta_post)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "insta_post": insta_post_text,
+        }
+    )
+
+@csrf_exempt
+def reddit_post(request):
+    if request.method == "OPTIONS":
+        return JsonResponse({"status": "ok"})
+
+    if request.method != "POST":
+        return JsonResponse({"detail": "Method not allowed"}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except json.JSONDecodeError:
+        return JsonResponse({"detail": "Invalid JSON body"}, status=400)
+
+    topic = (payload.get("topic1") or "").strip()
+    tone = (payload.get("tone") or "casual").strip() or "casual"
+
+    if not topic:
+        return JsonResponse({"detail": "'text' is required"}, status=400)
+
+    try:
+        raw_reddit_post = reddit_post_chain.invoke({"text": topic, "tone": tone})
+        reddit_post_text = extract_after_marker(raw_reddit_post)
+
+    except Exception as exc:
+        return JsonResponse(
+            {
+                "detail": "Error while generating content",
+                "error": str(exc),
+            },
+            status=500,
+        )
+
+    return JsonResponse(
+        {
+            "text": topic,
+            "tone": tone,
+            "reddit_post": reddit_post_text,
+        }
+    )
+
+
 @csrf_exempt
 def pexels_suggestions(request):
     q = request.GET.get("q")

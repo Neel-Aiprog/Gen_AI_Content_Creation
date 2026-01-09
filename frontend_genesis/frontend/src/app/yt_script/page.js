@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 import { useRouter } from 'next/navigation';
 
 export function MyButton({ to, children,  className = ''}) {
@@ -16,38 +16,12 @@ export function MyButton({ to, children,  className = ''}) {
 }
 
 
-/* UNSPLASH INJECTOR */
-function injectImagesIntoHtml(text, images) {
-  if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
-
-  const paragraphs = text.split(/\n+/).map(p => `<p>${p}</p>`);
-  let i = 0;
-
-  return paragraphs.map((p, idx) => {
-    if (idx > 0 && i < idx && i < images.length) {
-      const img = images[i++];
-      return `
-        ${p}
-        <p style="text-align:center">
-
-        
-          <img src="${img.urls.regular}" style="max-width:100%;border-radius:14px"/>
-          <br/>
-          <em style="font-size:13px;color:#aaa">
-            ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
-          </em>
-        </p>`;
-    }
-    return p;
-  }).join("");
-}
-
 export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
   const [tone, setTone] = useState("scientific");
-  const [article1, setArticle1] = useState("");
-  const [article_regen, setArticle_regen] = useState("");      
+  const [article_regen, setArticle_regen] = useState("");
+  const [article_script,setArticle_script] = useState("");        
   const [pexels, setPexels] = useState([]);
   const [showPexels, setShowPexels] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,26 +39,26 @@ export default function Home() {
     });
   }, []);
 
-
-
-
-  async function handleSubmit(e) {
+ 
+  async function handleScript(e) {
     e.preventDefault();
     if (!topic1.trim()) return setError("Please enter a topic.");
 
     setLoading(true);
     setError("");
-    setArticle1("");
+    setArticle_script("");
+    setShowPexels(false);
+    setPexels([]);
 
     try {
-      const res = await fetch("/api/generate-blog", {
+      const res = await fetch("/api/youtube-script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic1, tone }),
       });
 
       const data = await res.json();
-      setArticle1(injectImagesIntoHtml(data.blog, data.images));
+      setArticle_script(data.script);
     } catch {
       setError("Backend error.");
     } finally {
@@ -118,18 +92,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }
-
-
-
-  async function loadPexels() {
-    if (!topic1.trim()) return alert("Enter text first");
-
-    setShowPexels(true);
-    const res = await fetch(`/api/pexels-suggestions?q=${encodeURIComponent(topic1)}`);
-    const data = await res.json();
-    setPexels(data.photos || []);
-  }
+  }  
 
 
 
@@ -137,32 +100,32 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      {/* MAIN BLOG */}
+      {/* MAIN YOUTUBE SCRIPT */}
       <main className={styles.main}>
-      <div className={styles.buttonrow}>
-        <MyButton to="/blog" className={styles.NavButton} onClick={loadPexels}>
+        <div className={styles.buttonrow}>
+        <MyButton to="/blog" className={styles.NavButton}>
           Blog
         </MyButton>
-        <MyButton to="/tweet"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/tweet"className={styles.NavButton}>
           Twitter
         </MyButton>
-        <MyButton to="/yt_desc"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_desc"className={styles.NavButton}>
           Yt Desc
         </MyButton>
-        <MyButton to="/yt_script"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_script"className={styles.NavButton}>
           Yt Script
         </MyButton>
-        <MyButton to="/insta_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/insta_post"className={styles.NavButton}>
           Insta
         </MyButton>
-        <MyButton to="/reddit_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/reddit_post"className={styles.NavButton}>
           Reddit
         </MyButton>
       </div>
-        <h1 className={styles.title}>Genesis · AI Blog Generator</h1>
+        <h1 className={styles.title}>Genesis · AI Youtube script Generator</h1>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <textarea className={styles.textarea} placeholder="Enter blog topic..."
+        <form className={styles.form} onSubmit={handleScript}>
+          <textarea className={styles.textarea} placeholder="Enter youtube script topic..."
             value={topic1} onChange={e => setTopic1(e.target.value)} />
 
           <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
@@ -173,7 +136,7 @@ export default function Home() {
           </select>
 
           <button className={styles.generateButton} disabled={loading}>
-            {loading ? "Generating..." : "Generate Blog"}
+            {loading ? "Generating..." : "Generate Youtube script"}
           </button>
         </form>
 
@@ -181,15 +144,15 @@ export default function Home() {
 
         <div className={styles.editorBox}>
           <div ref={toolbarRef1} />
-          {article1 && editorLoaded && (
+          {article_script && editorLoaded && (
             <CKEditor
               editor={editorRef.current}
-              data={article1}
+              data={article_script}
               onReady={editor => {
                 toolbarRef1.current.innerHTML = "";
                 toolbarRef1.current.appendChild(editor.ui.view.toolbar.element);
               }}
-              onChange={(e, editor) => setArticle1(editor.getData())}
+              onChange={(e, editor) => setArticle_script(editor.getData())}
             />
           )}
         </div>
@@ -229,39 +192,8 @@ export default function Home() {
             />
           )}
         </div>
-
-        <button className={styles.generateButton} onClick={loadPexels}>
-          Show Image Suggestions
-        </button>
       </main>
 
-      {/* PEXELS DRAWER */}
-      {showPexels && (
-        <div className={styles.pexelsDrawer}>
-          <div className={styles.drawerHeader}>
-            <span>Image Suggestions (Pexels)</span>
-            <button onClick={() => setShowPexels(false)}>✕</button>
-          </div>
-
-          <div className={styles.drawerGrid}>
-            {pexels.map((img, i) => (
-              <img
-                key={i}
-                src={img.src.medium}
-                className={styles.drawerImg}
-                onClick={() => {
-                  setArticle_regen(prev => prev + `
-                    <p style="text-align:center">
-                      <img src="${img.src.large}" style="max-width:100%;border-radius:14px"/>
-                      <br/><em>${img.alt || "Photo"} — ${img.photographer}</em>
-                    </p>`);
-                  setShowPexels(false);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

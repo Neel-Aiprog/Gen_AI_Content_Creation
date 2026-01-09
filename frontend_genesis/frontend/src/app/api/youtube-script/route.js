@@ -14,28 +14,17 @@ export async function POST(request) {
     const body = await request.json();
     const topic = body.topic1;
 
-    /* 1️⃣ Generate blog from Django */
-    const blogRes = await fetch("http://localhost:8000/api/generate-blog/", {
+    /* 1️⃣ Regenerate text from Django */
+    const scriptRes = await fetch("http://localhost:8000/api/youtube-script/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    const blogData = await blogRes.json();
+    const scriptData = await scriptRes.json();
 
-    /* 2️⃣ Fetch UNSPLASH images from Django */
-    const imgRes = await fetch(
-      `http://localhost:8000/api/unsplash/?q=${encodeURIComponent(topic)}`
-    );
-
-    const imgData = await imgRes.json();
-
-    /* 3️⃣ Combine blog + images */
     return new Response(
-      JSON.stringify({
-        ...blogData,
-        images: imgData.results || []
-      }),
+      JSON.stringify(scriptData),
       {
         status: 200,
         headers: {
@@ -52,5 +41,3 @@ export async function POST(request) {
     );
   }
 }
-
-

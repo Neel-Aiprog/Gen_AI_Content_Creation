@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 import { useRouter } from 'next/navigation';
 
 export function MyButton({ to, children,  className = ''}) {
@@ -14,7 +14,6 @@ export function MyButton({ to, children,  className = ''}) {
     </button>
   );
 }
-
 
 /* UNSPLASH INJECTOR */
 function injectImagesIntoHtml(text, images) {
@@ -46,8 +45,8 @@ export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
   const [tone, setTone] = useState("scientific");
-  const [article1, setArticle1] = useState("");
-  const [article_regen, setArticle_regen] = useState("");      
+  const [article_regen, setArticle_regen] = useState("");
+  const [article_tweet, setArticle_tweet] = useState("");        
   const [pexels, setPexels] = useState([]);
   const [showPexels, setShowPexels] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,26 +64,24 @@ export default function Home() {
     });
   }, []);
 
-
-
-
-  async function handleSubmit(e) {
+ 
+  async function handleTweet(e) {
     e.preventDefault();
     if (!topic1.trim()) return setError("Please enter a topic.");
 
     setLoading(true);
     setError("");
-    setArticle1("");
+    setArticle_tweet("");
 
     try {
-      const res = await fetch("/api/generate-blog", {
+      const res = await fetch("/api/generate-tweet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic1, tone }),
       });
 
       const data = await res.json();
-      setArticle1(injectImagesIntoHtml(data.blog, data.images));
+      setArticle_tweet(injectImagesIntoHtml(data.tweet, data.images));
     } catch {
       setError("Backend error.");
     } finally {
@@ -118,8 +115,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }
-
+  }  
 
 
   async function loadPexels() {
@@ -137,32 +133,32 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      {/* MAIN BLOG */}
+      {/* MAIN TWEET */}
       <main className={styles.main}>
-      <div className={styles.buttonrow}>
-        <MyButton to="/blog" className={styles.NavButton} onClick={loadPexels}>
+        <div className={styles.buttonrow}>
+        <MyButton to="/blog" className={styles.NavButton}>
           Blog
         </MyButton>
-        <MyButton to="/tweet"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/tweet"className={styles.NavButton} >
           Twitter
         </MyButton>
-        <MyButton to="/yt_desc"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_desc"className={styles.NavButton}>
           Yt Desc
         </MyButton>
-        <MyButton to="/yt_script"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/yt_script"className={styles.NavButton}>
           Yt Script
         </MyButton>
-        <MyButton to="/insta_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/insta_post"className={styles.NavButton}>
           Insta
         </MyButton>
-        <MyButton to="/reddit_post"className={styles.NavButton} onClick={loadPexels}>
+        <MyButton to="/reddit_post"className={styles.NavButton} >
           Reddit
         </MyButton>
-      </div>
-        <h1 className={styles.title}>Genesis · AI Blog Generator</h1>
+        </div>
+        <h1 className={styles.title}>Genesis · AI Tweet Generator</h1>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <textarea className={styles.textarea} placeholder="Enter blog topic..."
+        <form className={styles.form} onSubmit={handleTweet}>
+          <textarea className={styles.textarea} placeholder="Enter tweet topic..."
             value={topic1} onChange={e => setTopic1(e.target.value)} />
 
           <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
@@ -173,7 +169,7 @@ export default function Home() {
           </select>
 
           <button className={styles.generateButton} disabled={loading}>
-            {loading ? "Generating..." : "Generate Blog"}
+            {loading ? "Generating..." : "Generate Tweet"}
           </button>
         </form>
 
@@ -181,15 +177,15 @@ export default function Home() {
 
         <div className={styles.editorBox}>
           <div ref={toolbarRef1} />
-          {article1 && editorLoaded && (
+          {article_tweet && editorLoaded && (
             <CKEditor
               editor={editorRef.current}
-              data={article1}
+              data={article_tweet}
               onReady={editor => {
                 toolbarRef1.current.innerHTML = "";
                 toolbarRef1.current.appendChild(editor.ui.view.toolbar.element);
               }}
-              onChange={(e, editor) => setArticle1(editor.getData())}
+              onChange={(e, editor) => setArticle_tweet(editor.getData())}
             />
           )}
         </div>
