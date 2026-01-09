@@ -117,3 +117,19 @@ def regenerate_text(request):
             "regened": regen_text,
         }
     )
+@csrf_exempt
+def pexels_suggestions(request):
+    q = request.GET.get("q")
+
+    url = "https://api.pexels.com/v1/search"
+    headers = { "Authorization": os.getenv("PEXELS_API_KEY") }
+
+    params = {
+        "query": q,
+        "per_page": 12
+        # ❌ remove orientation filter
+    }
+
+    r = requests.get(url, headers=headers, params=params, timeout=20)
+    return JsonResponse(r.json(), safe=False)
+
