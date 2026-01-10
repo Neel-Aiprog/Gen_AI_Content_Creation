@@ -15,31 +15,6 @@ export function MyButton({ to, children,  className = ''}) {
   );
 }
 
-/* UNSPLASH INJECTOR */
-function injectImagesIntoHtml(text, images) {
-  if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
-
-  const paragraphs = text.split(/\n+/).map(p => `<p>${p}</p>`);
-  let i = 0;
-
-  return paragraphs.map((p, idx) => {
-    if (idx > 0 && i < idx && i < images.length) {
-      const img = images[i++];
-      return `
-        ${p}
-        <p style="text-align:center">
-
-        
-          <img src="${img.urls.regular}" style="max-width:100%;border-radius:14px"/>
-          <br/>
-          <em style="font-size:13px;color:#aaa">
-            ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
-          </em>
-        </p>`;
-    }
-    return p;
-  }).join("");
-}
 
 export default function Home() {
   const [topic1, setTopic1] = useState("");
@@ -81,7 +56,7 @@ export default function Home() {
       });
 
       const data = await res.json();
-      setArticle_tweet(injectImagesIntoHtml(data.tweet, data.images));
+      setArticle_tweet(data.tweet);
     } catch {
       setError("Backend error.");
     } finally {
@@ -116,16 +91,6 @@ export default function Home() {
       setLoading(false);
     }
   }  
-
-
-  async function loadPexels() {
-    if (!topic1.trim()) return alert("Enter text first");
-
-    setShowPexels(true);
-    const res = await fetch(`/api/pexels-suggestions?q=${encodeURIComponent(topic1)}`);
-    const data = await res.json();
-    setPexels(data.photos || []);
-  }
 
 
 
@@ -226,38 +191,8 @@ export default function Home() {
           )}
         </div>
 
-        <button className={styles.generateButton} onClick={loadPexels}>
-          Show Image Suggestions
-        </button>
       </main>
 
-      {/* PEXELS DRAWER */}
-      {showPexels && (
-        <div className={styles.pexelsDrawer}>
-          <div className={styles.drawerHeader}>
-            <span>Image Suggestions (Pexels)</span>
-            <button onClick={() => setShowPexels(false)}>✕</button>
-          </div>
-
-          <div className={styles.drawerGrid}>
-            {pexels.map((img, i) => (
-              <img
-                key={i}
-                src={img.src.medium}
-                className={styles.drawerImg}
-                onClick={() => {
-                  setArticle_regen(prev => prev + `
-                    <p style="text-align:center">
-                      <img src="${img.src.large}" style="max-width:100%;border-radius:14px"/>
-                      <br/><em>${img.alt || "Photo"} — ${img.photographer}</em>
-                    </p>`);
-                  setShowPexels(false);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

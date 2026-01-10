@@ -12,7 +12,7 @@ export async function OPTIONS() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const topic = body.topic;
+    const topic = body.topic1;
 
     /* 1️⃣ Generate instagram post from Django */
     const insta_postRes = await fetch("http://localhost:8000/api/instagram-post/", {
@@ -23,19 +23,9 @@ export async function POST(request) {
 
     const insta_postData = await insta_postRes.json();
 
-    /* 2️⃣ Fetch UNSPLASH images from Django */
-    const imgRes = await fetch(
-      `http://localhost:8000/api/unsplash/?q=${encodeURIComponent(topic)}`
-    );
-
-    const imgData = await imgRes.json();
-
-    /* 3️⃣ Combine instagram post + images */
+    
     return new Response(
-      JSON.stringify({
-        ...insta_postData,
-        images: imgData.results || []
-      }),
+      JSON.stringify(insta_postData),
       {
         status: 200,
         headers: {

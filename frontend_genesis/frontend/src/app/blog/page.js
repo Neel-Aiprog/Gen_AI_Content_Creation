@@ -21,11 +21,12 @@ export function MyButton({ to, children, className = '' }) {
 }
 
 /* UNSPLASH INJECTOR */
-function injectImagesIntoHtml(text, images) {
-  if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
-
-  const paragraphs = text.split(/\n+/).map(p => `<p>${p}</p>`);
-  let i = 0;
+function renderTextWithImages(text, images = []) {
+  // Render all paragraphs first
+  const paragraphsHTML = text
+    .split(/\n+/)
+    .map(p => `<p>${p}</p>`)
+    .join("");
 
   return paragraphs.map((p, idx) => {
     if (idx > 0 && i < idx && i < images.length) {
@@ -83,7 +84,7 @@ export default function Home() {
       });
 
       const data = await res.json();
-      setArticle1(injectImagesIntoHtml(data.blog, data.images));
+      setArticle1(renderTextWithImages(data.blog, data.images));
     } catch {
       setError("Backend error.");
     } finally {
