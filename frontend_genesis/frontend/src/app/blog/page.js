@@ -28,21 +28,25 @@ function renderTextWithImages(text, images = []) {
     .map(p => `<p>${p}</p>`)
     .join("");
 
-  return paragraphs.map((p, idx) => {
-    if (idx > 0 && i < idx && i < images.length) {
-      const img = images[i++];
-      return `
-        ${p}
-        <p style="text-align:center">
-          <img src="${img.urls.regular}" style="max-width:100%;border-radius:14px"/>
-          <br/>
-          <em style="font-size:13px;color:#aaa">
-            ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
-          </em>
-        </p>`;
-    }
-    return p;
-  }).join("");
+  // If no images, just return text
+  if (!images.length) return paragraphsHTML;
+
+  // Take only first 3 images
+  const imagesHTML = images.slice(0, 3).map(img => `
+    <p style="text-align:center">
+      <img 
+        src="${img.urls.regular}" 
+        style="max-width:100%;border-radius:14px"
+      />
+      <br/>
+      <em style="font-size:13px;color:#aaa">
+        ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
+      </em>
+    </p>
+  `).join("");
+
+  // Text first, images last
+  return paragraphsHTML + imagesHTML;
 }
 
 export default function Home() {
