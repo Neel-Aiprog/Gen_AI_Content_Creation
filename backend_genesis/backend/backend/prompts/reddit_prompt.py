@@ -24,7 +24,7 @@ HARD CONSTRAINTS (NO EXCEPTIONS):
 STRUCTURE (MANDATORY):
 1. First line: TITLE
    - Must be ONE single line
-   - Max 300 characters
+   - Min 100 characters
    - No prefixes like "Title:" or "Post:"
 
 2. One blank line

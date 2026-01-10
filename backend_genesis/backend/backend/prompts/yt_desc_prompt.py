@@ -44,7 +44,7 @@ STRUCTURE (MANDATORY AND IN THIS ORDER):
    - Links listed one per line
    - No text after the links section
 
-- 2-5 Relevant hashtags
+- 2-5 Relevant hashtags 
 - NO LINKS.
 FAILURE CONDITION:
 If ANY rule is violated, the output is INVALID.
