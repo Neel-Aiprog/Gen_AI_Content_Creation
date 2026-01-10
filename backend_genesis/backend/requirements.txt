@@ -1,0 +1,9 @@
+Django==5.1.6
+django-cors-headers
+requests
+python-dotenv
+langchain-core
+langchain-groq
+langchain-community
+gunicorn
+whitenoise
