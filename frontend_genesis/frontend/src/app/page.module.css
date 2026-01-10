@@ -76,6 +76,10 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  display: inline-flex;      /* ✅ key fix */
+  align-items: center;       /* ✅ vertical centering */
+  gap: 0.5rem;               /* spacing between icon & text */
+  line-height: 1;            /* prevents baseline issues */
 }
 
 .navButton:hover {
@@ -623,4 +627,10 @@
   50% {
     opacity: 0.7;
   }
+}
+
+.icon {
+  width: 1.8em;
+  height: 1.8em;
+  flex-shrink: 0;
 }
