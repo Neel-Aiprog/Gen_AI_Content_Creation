@@ -1,8 +1,10 @@
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function GET(request) {
   const q = new URL(request.url).searchParams.get("q");
 
   const res = await fetch(
-    `http://localhost:8000/api/pexels-suggestions/?q=${encodeURIComponent(q)}`
+    `${BACKEND_URL}/api/pexels-suggestions/?q=${encodeURIComponent(q)}`
   );
 
   return new Response(await res.text(), {

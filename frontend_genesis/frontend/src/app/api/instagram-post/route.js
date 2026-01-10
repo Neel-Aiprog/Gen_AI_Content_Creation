@@ -1,3 +1,5 @@
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
@@ -15,7 +17,7 @@ export async function POST(request) {
     const topic = body.topic1;
 
     /* 1️⃣ Generate instagram post from Django */
-    const insta_postRes = await fetch("http://localhost:8000/api/instagram-post/", {
+    const insta_postRes = await fetch(`${BACKEND_URL}/api/instagram-post/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -23,7 +25,7 @@ export async function POST(request) {
 
     const insta_postData = await insta_postRes.json();
 
-    
+
     return new Response(
       JSON.stringify(insta_postData),
       {

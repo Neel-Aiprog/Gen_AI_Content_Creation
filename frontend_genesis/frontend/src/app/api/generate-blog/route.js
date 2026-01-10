@@ -1,3 +1,5 @@
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
@@ -15,7 +17,7 @@ export async function POST(request) {
     const topic = body.topic1;
 
     /* 1️⃣ Generate blog from Django */
-    const blogRes = await fetch("http://localhost:8000/api/generate-blog/", {
+    const blogRes = await fetch(`${BACKEND_URL}/api/generate-blog/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -25,7 +27,7 @@ export async function POST(request) {
 
     /* 2️⃣ Fetch UNSPLASH images from Django */
     const imgRes = await fetch(
-      `http://localhost:8000/api/unsplash/?q=${encodeURIComponent(topic)}`
+      `${BACKEND_URL}/api/unsplash/?q=${encodeURIComponent(topic)}`
     );
 
     const imgData = await imgRes.json();
