@@ -17,30 +17,34 @@ export function MyButton({ to, children,  className = ''}) {
 
 
 /* UNSPLASH INJECTOR */
-function injectImagesIntoHtml(text, images) {
-  if (!images?.length) return `<p>${text.replace(/\n+/g, "</p><p>")}</p>`;
+function renderTextWithImages(text, images = []) {
+  // Render all paragraphs first
+  const paragraphsHTML = text
+    .split(/\n+/)
+    .map(p => `<p>${p}</p>`)
+    .join("");
 
-  const paragraphs = text.split(/\n+/).map(p => `<p>${p}</p>`);
-  let i = 0;
+  // If no images, just return text
+  if (!images.length) return paragraphsHTML;
 
-  return paragraphs.map((p, idx) => {
-    if (idx > 0 && i < idx && i < images.length) {
-      const img = images[i++];
-      return `
-        ${p}
-        <p style="text-align:center">
+  // Take only first 3 images
+  const imagesHTML = images.slice(0, 3).map(img => `
+    <p style="text-align:center">
+      <img 
+        src="${img.urls.regular}" 
+        style="max-width:100%;border-radius:14px"
+      />
+      <br/>
+      <em style="font-size:13px;color:#aaa">
+        ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
+      </em>
+    </p>
+  `).join("");
 
-        
-          <img src="${img.urls.regular}" style="max-width:100%;border-radius:14px"/>
-          <br/>
-          <em style="font-size:13px;color:#aaa">
-            ${img.alt_description || "Photo"} — by ${img.user.name} (Unsplash)
-          </em>
-        </p>`;
-    }
-    return p;
-  }).join("");
+  // Text first, images last
+  return paragraphsHTML + imagesHTML;
 }
+
 
 export default function Home() {
   const [topic1, setTopic1] = useState("");
@@ -84,7 +88,7 @@ export default function Home() {
       });
 
       const data = await res.json();
-      setArticle1(injectImagesIntoHtml(data.blog, data.images));
+      setArticle1(renderTextWithImages(data.blog, data.images));
     } catch {
       setError("Backend error.");
     } finally {

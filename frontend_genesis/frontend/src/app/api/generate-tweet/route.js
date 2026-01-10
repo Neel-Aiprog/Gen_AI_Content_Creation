@@ -23,19 +23,9 @@ export async function POST(request) {
 
     const tweetData = await tweetRes.json();
 
-    /* 2️⃣ Fetch UNSPLASH images from Django */
-    const imgRes = await fetch(
-      `http://localhost:8000/api/unsplash/?q=${encodeURIComponent(topic)}`
-    );
 
-    const imgData = await imgRes.json();
-
-    /* 3️⃣ Combine tweet + images */
     return new Response(
-      JSON.stringify({
-        ...tweetData,
-        images: imgData.results || []
-      }),
+      JSON.stringify(tweetData),
       {
         status: 200,
         headers: {

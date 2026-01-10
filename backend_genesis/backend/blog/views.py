@@ -257,7 +257,7 @@ def instagram_post(request):
         return JsonResponse({"detail": "Invalid JSON body"}, status=400)
 
     topic = (payload.get("topic1") or "").strip()
-    tone = (payload.get("tone") or "casual").strip() or "casual"
+    tone ="casual"
 
     if not topic:
         return JsonResponse({"detail": "'text' is required"}, status=400)
