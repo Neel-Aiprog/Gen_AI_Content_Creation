@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://gen-ai-content-creation.onrender.com';
 
 export async function OPTIONS() {
   return new Response(null, {
