@@ -1,3 +1,5 @@
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
@@ -15,7 +17,7 @@ export async function POST(request) {
     const topic = body.topic1;
 
     /* 1️⃣ Regenerate text from Django */
-    const scriptRes = await fetch("http://localhost:8000/api/youtube-script/", {
+    const scriptRes = await fetch(`${BACKEND_URL}/api/youtube-script/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

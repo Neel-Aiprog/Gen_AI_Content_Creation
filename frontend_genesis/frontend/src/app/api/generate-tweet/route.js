@@ -1,3 +1,5 @@
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
@@ -15,7 +17,7 @@ export async function POST(request) {
     const topic = body.topic1;
 
     /* 1️⃣ Generate tweet from Django */
-    const tweetRes = await fetch("http://localhost:8000/api/generate-tweet/", {
+    const tweetRes = await fetch(`${BACKEND_URL}/api/generate-tweet/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
