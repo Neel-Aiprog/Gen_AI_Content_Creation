@@ -5,6 +5,42 @@ import { CKEditor } from '@ckeditor/ckeditor5-react';
 import styles from "../page.module.css";
 import { useRouter, usePathname } from 'next/navigation';
 
+const waitForImages = (container) =>
+  Promise.all(
+    [...container.querySelectorAll("img")].map(img =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise(resolve => {
+            img.onload = img.onerror = resolve;
+          })
+    )
+  );
+
+function wrapImagesForPDF(container) {
+  const images = [...container.querySelectorAll("img")];
+
+  images.forEach(img => {
+    // Skip if already wrapped
+    if (img.closest(".pdf-image-block")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "pdf-image-block";
+
+    // Insert wrapper before image
+    img.parentNode.insertBefore(wrapper, img);
+
+    // Move image into wrapper
+    wrapper.appendChild(img);
+
+    // If next element looks like a caption, move it too
+    const next = wrapper.nextElementSibling;
+    if (next && next.tagName === "P") {
+      wrapper.appendChild(next);
+    }
+  });
+}
+
+
 export function MyButton({ to, children, className = '' }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -256,6 +292,96 @@ export default function Home() {
                     toolbarRef1.current.innerHTML = "";
                     toolbarRef1.current.appendChild(toolbar);
 
+                                        const pdfBtn = document.createElement("button");
+                      pdfBtn.type = "button";
+                      pdfBtn.className = "ck ck-button ck-off";
+                      pdfBtn.title = "Export to PDF";
+
+                      // PDF icon (SVG)
+                    pdfBtn.innerHTML = `
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 640 640"
+                        class="clipboard-icon"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M128 64C92.7 64 64 92.7 64 128L64 512C64 547.3 92.7 576 128 576L208 576L208 464C208 428.7 236.7 400 272 400L448 400L448 234.5C448 217.5 441.3 201.2 429.3 189.2L322.7 82.7C310.7 70.7 294.5 64 277.5 64L128 64zM389.5 240L296 240C282.7 240 272 229.3 272 216L272 122.5L389.5 240zM272 444C261 444 252 453 252 464L252 592C252 603 261 612 272 612C283 612 292 603 292 592L292 564L304 564C337.1 564 364 537.1 364 504C364 470.9 337.1 444 304 444L272 444zM304 524L292 524L292 484L304 484C315 484 324 493 324 504C324 515 315 524 304 524zM400 444C389 444 380 453 380 464L380 592C380 603 389 612 400 612L432 612C460.7 612 484 588.7 484 560L484 496C484 467.3 460.7 444 432 444L400 444zM420 572L420 484L432 484C438.6 484 444 489.4 444 496L444 560C444 566.6 438.6 572 432 572L420 572zM508 464L508 592C508 603 517 612 528 612C539 612 548 603 548 592L548 548L576 548C587 548 596 539 596 528C596 517 587 508 576 508L548 508L548 484L576 484C587 484 596 475 596 464C596 453 587 444 576 444L528 444C517 444 508 453 508 464z"
+                        />
+                      </svg>
+                    `;
+
+
+                    pdfBtn.onclick = async () => {
+                      const html2pdf = (await import("html2pdf.js")).default;
+
+                      const content = editor.getData();
+                      const wrapper = document.createElement("div");
+                      wrapper.innerHTML = content;
+                      wrapImagesForPDF(wrapper);
+
+                      // Fix colors for PDF
+                      wrapper.style.color = "#000";
+                      wrapper.style.background = "#fff";
+                      wrapper.querySelectorAll("*").forEach(el => {
+                        el.style.color = "#000";
+                      });
+
+                      // Enable Unsplash images
+                      wrapper.querySelectorAll("img").forEach(img => {
+                        img.setAttribute("crossorigin", "anonymous");
+                      });
+
+                      // Prevent image cutting & scale flexibly
+                    const style = document.createElement("style");
+                    style.innerHTML = `
+
+                      img {
+                        max-width: 100%;
+                        height: auto !important;
+                        display: block;
+                        object-fit: contain;
+                      }
+
+                      .pdf-image-block {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                        padding-top: 1rem;
+                      }
+
+
+                    `;
+                    wrapper.appendChild(style);
+
+                      // ⏳ Wait for images
+                      await waitForImages(wrapper);
+
+                      // Generate PDF
+                      html2pdf()
+                        .from(wrapper)
+                        .set({
+                          margin: [15, 10, 15, 10],
+                          filename: "document.pdf",
+                          pagebreak: {
+                          mode: ["css", "legacy"]
+                        },
+                          html2canvas: {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: false
+                          },
+                          jsPDF: {
+                            unit: "mm",
+                            format: "a4",
+                            orientation: "portrait"
+                          }
+                        })
+                        .save();
+                    };
+
+                    toolbar.appendChild(pdfBtn);
+
                   // ---------- ADD COPY BUTTON ----------
                     const copyBtn = document.createElement("button");
                     copyBtn.type = "button";
@@ -372,6 +498,96 @@ export default function Home() {
                     // keep your existing logic
                     toolbarRef2.current.innerHTML = "";
                     toolbarRef2.current.appendChild(toolbar);
+
+                      const pdfBtn = document.createElement("button");
+                      pdfBtn.type = "button";
+                      pdfBtn.className = "ck ck-button ck-off";
+                      pdfBtn.title = "Export to PDF";
+
+                      // PDF icon (SVG)
+                    pdfBtn.innerHTML = `
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 640 640"
+                        class="clipboard-icon"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M128 64C92.7 64 64 92.7 64 128L64 512C64 547.3 92.7 576 128 576L208 576L208 464C208 428.7 236.7 400 272 400L448 400L448 234.5C448 217.5 441.3 201.2 429.3 189.2L322.7 82.7C310.7 70.7 294.5 64 277.5 64L128 64zM389.5 240L296 240C282.7 240 272 229.3 272 216L272 122.5L389.5 240zM272 444C261 444 252 453 252 464L252 592C252 603 261 612 272 612C283 612 292 603 292 592L292 564L304 564C337.1 564 364 537.1 364 504C364 470.9 337.1 444 304 444L272 444zM304 524L292 524L292 484L304 484C315 484 324 493 324 504C324 515 315 524 304 524zM400 444C389 444 380 453 380 464L380 592C380 603 389 612 400 612L432 612C460.7 612 484 588.7 484 560L484 496C484 467.3 460.7 444 432 444L400 444zM420 572L420 484L432 484C438.6 484 444 489.4 444 496L444 560C444 566.6 438.6 572 432 572L420 572zM508 464L508 592C508 603 517 612 528 612C539 612 548 603 548 592L548 548L576 548C587 548 596 539 596 528C596 517 587 508 576 508L548 508L548 484L576 484C587 484 596 475 596 464C596 453 587 444 576 444L528 444C517 444 508 453 508 464z"
+                        />
+                      </svg>
+                    `;
+
+
+                    pdfBtn.onclick = async () => {
+                      const html2pdf = (await import("html2pdf.js")).default;
+
+                      const content = editor.getData();
+                      const wrapper = document.createElement("div");
+                      wrapper.innerHTML = content;
+                      wrapImagesForPDF(wrapper);
+
+                      // Fix colors for PDF
+                      wrapper.style.color = "#000";
+                      wrapper.style.background = "#fff";
+                      wrapper.querySelectorAll("*").forEach(el => {
+                        el.style.color = "#000";
+                      });
+
+                      // Enable Unsplash images
+                      wrapper.querySelectorAll("img").forEach(img => {
+                        img.setAttribute("crossorigin", "anonymous");
+                      });
+
+                      // Prevent image cutting & scale flexibly
+                    const style = document.createElement("style");
+                    style.innerHTML = `
+
+                      img {
+                        max-width: 100%;
+                        height: auto !important;
+                        display: block;
+                        object-fit: contain;
+                      }
+
+                      .pdf-image-block {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                        padding-top: 1rem;
+                      }
+
+
+                    `;
+                    wrapper.appendChild(style);
+
+                      // ⏳ Wait for images
+                      await waitForImages(wrapper);
+
+                      // Generate PDF
+                      html2pdf()
+                        .from(wrapper)
+                        .set({
+                          margin: [15, 10, 15, 10],
+                          filename: "document.pdf",
+                          pagebreak: {
+                          mode: ["css", "legacy"]
+                        },
+                          html2canvas: {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: false
+                          },
+                          jsPDF: {
+                            unit: "mm",
+                            format: "a4",
+                            orientation: "portrait"
+                          }
+                        })
+                        .save();
+                    };
+
+                    toolbar.appendChild(pdfBtn);
 
                    // ---------- ADD COPY BUTTON ----------
                     const copyBtn = document.createElement("button");
