@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.BACKEND_URL || 'https://gen-ai-content-creation.onrender.com';
+import { BACKEND_URL } from '@/lib/config';
 
 export async function OPTIONS() {
   return new Response(null, {
