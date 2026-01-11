@@ -1,6 +1,6 @@
 # Gen AI Content Creation
 
-**Gen AI Content Creation** is a comprehensive content generation platform built by **Nishchay Mittal[3]**, **Neel Mhaske[1]**, and **Leon Lobo[2]** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, Reddit posts and Instagram captions.
+**Gen AI Content Creation** is a comprehensive content generation platform built by **[Nishchay Mittal][3]**, **[Neel Mhaske][1]**, and **[Leon Lobo][2]** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, Reddit posts and Instagram captions.
 
 The platform orchestrates **LangChain** and modern LLMs to generate text while seamlessly integrating with **Unsplash** and **Pexels** APIs to provide relevant, high-resolution imagery.
 
