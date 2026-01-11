@@ -1,129 +1,138 @@
 # Gen AI Content Creation
 
-This project was created under the Genesis competition. Gen AI Content Creation is a platform built by a team of three — Nishchay Mittal, Neel Mhaske, and Leon Lobo — that uses generative AI to create content such as blog posts, tweets, YouTube scripts & descriptions, and Instagram captions. The platform combines a modern Next.js front end with a Django back end, and uses LangChain for generation along with Unsplash and Pexels APIs for images.
+![Project Banner](public/ai.svg) <!-- Add a banner if available, otherwise just use the logo path or remove -->
 
-Repository: [Neel-Aiprog/Gen_AI_Content_Creation](https://github.com/Neel-Aiprog/Gen_AI_Content_Creation)
+**Gen AI Content Creation** is a comprehensive content generation platform built by **Nishchay Mittal**, **Neel Mhaske**, and **Leon Lobo** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, and Instagram captions.
 
-Table of contents
-- [Features](#features)
-- [Team](#team)
-- [Tech stack](#tech-stack)
-- [Architecture overview](#architecture-overview)
-- [Getting started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Frontend (Next.js)](#frontend-nextjs)
-  - [Backend (Django)](#backend-django)
-  - [Environment variables](#environment-variables)
-- [Example usage](#example-usage)
-- [Deployment notes](#deployment-notes)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+The platform orchestrates **LangChain** and modern LLMs to generate text while seamlessly integrating with **Unsplash** and **Pexels** APIs to provide relevant, high-resolution imagery.
 
-## Features
-- Generate blog posts, tweets, YouTube scripts, YouTube descriptions, and Instagram captions using generative models.
-- Image integration via Unsplash and Pexels APIs for enriching content.
-- Front end built with Next.js for fast, reactive UX.
-- Back end built with Django to handle API requests, manage users/data, and orchestrate LangChain generation.
+🔗 **Repository**: [Neel-Aiprog/Gen_AI_Content_Creation](https://github.com/Neel-Aiprog/Gen_AI_Content_Creation)
 
-## Team
-- Nishchay Mittal
-- Neel Mhaske
-- Leon Lobo
+---
 
-## Tech stack
-- Front end: Next.js (React, JavaScript/TypeScript)
-- Back end: Django (Python)
-- Generation library: LangChain
-- Image APIs: Unsplash API, Pexels API
+## 🚀 Features
 
+- **Multi-Format Generation**: tailored flows for Blogs, Tweets, YouTube Scripts/Descriptions, and Instagram Captions.
+- **Rich Text Editing**: Integrated **CKEditor** for polished writing and formatting.
+- **Visuals on Demand**: Automatic image suggestions via Unsplash and Pexels.
+- **PDF Export**: One-click export of generated content to PDF.
+- **Responsive Design**: Modern, glassmorphism-inspired UI built with Next.js.
+- **Robust Backend**: Scalable Django API handling complex generation logic and chaining.
 
-## Architecture overview
-1. The Next.js front end sends generation requests (type + prompt + options) to the Django API.
-2. Django receives requests and uses LangChain to orchestrate calls to the configured language model(s).
-3. If images are needed, Django calls the Unsplash and/or Pexels APIs and returns image metadata or URLs with the generated text.
-4. The front end displays the generated content and images; users can review, edit, and export.
+## 🛠 Tech Stack
 
-## Getting started
+### Frontend
+- **Framework**: [Next.js 15+](https://nextjs.org/) (React, App Router)
+- **Styling**: CSS Modules with modern variables & responsive design
+- **Editor**: [CKEditor 5](https://ckeditor.com/)
+- **State Management**: React Hooks
+
+### Backend
+- **Framework**: [Django](https://www.djangoproject.com/) & Django REST Framework
+- **AI Orchestration**: [LangChain](https://www.langchain.com/)
+- **Database**: SQLite (Development) / PostgreSQL (Production ready)
+
+### APIs & Services
+- **LLM Provider**: (Configurable, e.g., OpenAI, Google Gemini)
+- **Image Services**: [Unsplash API](https://unsplash.com/developers), [Pexels API](https://www.pexels.com/api/)
+
+## 📂 Project Structure
+
+```bash
+Gen_AI_Content_Creation/
+├── frontend_genesis/
+│   └── frontend/          # Next.js Application
+├── backend_genesis/
+│   └── backend/           # Django Application & API
+└── README.md
+```
+
+## 🏁 Getting Started
 
 ### Prerequisites
-- Node.js 16+ and npm or yarn
-- Python 3.8+
-- pip
-- (Optional) Docker & Docker Compose
-- API keys for your chosen model provider(s) (e.g., OpenAI) and for Unsplash and Pexels
+- **Node.js**: v16 or higher
+- **Python**: v3.8 or higher
+- **API Keys**:
+  - OpenAI / Gemini (for generation)
+  - Unsplash & Pexels (for images)
 
-### Frontend (Next.js)
-1. Open a terminal and navigate to the frontend folder (commonly `/frontend` or `/web` — adjust to your repo layout).
+### 1️⃣ Backend Setup (Django)
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend_genesis/backend
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+
+   # Mac/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run migrations:
+   ```bash
+   python manage.py migrate
+   ```
+
+5. Start the server:
+   ```bash
+   python manage.py runserver
+   ```
+   The backend will run at `http://localhost:8000`.
+
+### 2️⃣ Frontend Setup (Next.js)
+
+1. Open a new terminal and navigate to the frontend directory:
+   ```bash
+   cd frontend_genesis/frontend
+   ```
+
 2. Install dependencies:
-   - npm: `npm install`
-   - yarn: `yarn`
-3. Run the dev server:
-   - npm: `npm run dev`
-   - yarn: `yarn dev`
-4. By default Next.js runs on http://localhost:3000.
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-### Backend (Django)
-1. Navigate to the backend folder (commonly `/backend` or `/api`).
-2. Create and activate a virtual environment:
-   - python: `python -m venv venv`
-   - macOS/Linux: `source venv/bin/activate`
-   - Windows (PowerShell): `.\venv\Scripts\Activate.ps1`
-3. Install requirements:
-   - `pip install -r requirements.txt`
-4. Apply migrations:
-   - `python manage.py migrate`
-5. Create a superuser (optional, for admin):
-   - `python manage.py createsuperuser`
-6. Run the dev server:
-   - `python manage.py runserver`
-7. By default Django runs on http://127.0.0.1:8000.
+3. Configure Environment Variables:
+   Create a `.env.local` file in `frontend_genesis/frontend/`:
+   ```env
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+   # Add other keys if required by your specific components
+   ```
 
-### Environment variables
-Create `.env` or set environment variables for both frontend and backend. Example variables (names may vary with your implementation):
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+   The application will be available at `http://localhost:3000`.
 
-Frontend (.env.local)
-- NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
-- NEXT_PUBLIC_PEXELS_KEY=your_pexels_api_key
-- NEXT_PUBLIC_UNSPLASH_KEY=your_unsplash_api_key
+## 🤝 Contributing
 
+Contributions are welcome!
 
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add amazing feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
 
-Note: LangChain can be configured to use different providers — ensure you set the provider-specific keys and any model name identifiers your implementation expects.
+## 👥 Team
 
-## Example usage
-Below is an example of a typical API request shape — adapt to your implementation's endpoints:
+- **Nishchay Mittal**
+- **Neel Mhaske**
+- **Leon Lobo**
 
-Example curl POST (adjust endpoint path to your API)
-curl -X POST "http://localhost:8000/api/generate/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "blog",
-    "prompt": "Write a 600-word blog post about the benefits of microlearning for developers",
-    "tone": "informative",
-    "length": "medium"
-  }'
+## 📄 License
 
-Response (example)
-{
-  "title": "Microlearning: Boosting Developer Productivity with Bite-sized Lessons",
-  "content": "....generated blog content....",
-  "images": [
-    {
-      "source": "pexels",
-      "url": "https://images.pexels.com/..."
-    }
-  ]
-}
-
-Frontend UI: choose a content type (blog, tweet, YouTube script, YouTube description, Instagram caption), enter a prompt and options, submit, review the generated text, and optionally fetch images.
-
-
-
-## Contact
-If you need to reach the team:
-- Nishchay Mittal
-- Neel Mhaske
-- Leon Lobo
-
-For repo-specific questions, open an issue in this repository: [Neel-Aiprog/Gen_AI_Content_Creation Issues](https://github.com/Neel-Aiprog/Gen_AI_Content_Creation/issues)
+Distributed under the MIT License. See `LICENSE` for more information.
