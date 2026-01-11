@@ -36,7 +36,7 @@ Table of contents
 - Back end: Django (Python)
 - Generation library: LangChain
 - Image APIs: Unsplash API, Pexels API
-- Other: (typical additions) Node.js, pip / Python packages, and any hosting platform (Vercel, Heroku, Docker, etc.)
+
 
 ## Architecture overview
 1. The Next.js front end sends generation requests (type + prompt + options) to the Django API.
