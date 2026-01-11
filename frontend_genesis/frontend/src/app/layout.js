@@ -12,8 +12,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Content Creator",
+  title: "GEN AI",
   description: "Can create any content using GenAI",
+  icons: {
+    icon: "/ai.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
