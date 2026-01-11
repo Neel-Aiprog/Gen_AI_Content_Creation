@@ -1,18 +1,18 @@
 # Gen AI Content Creation
 
-![Project Banner](public/ai.svg) <!-- Add a banner if available, otherwise just use the logo path or remove -->
-
 **Gen AI Content Creation** is a comprehensive content generation platform built by **Nishchay Mittal**, **Neel Mhaske**, and **Leon Lobo** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, and Instagram captions.
 
 The platform orchestrates **LangChain** and modern LLMs to generate text while seamlessly integrating with **Unsplash** and **Pexels** APIs to provide relevant, high-resolution imagery.
 
 🔗 **Repository**: [Neel-Aiprog/Gen_AI_Content_Creation](https://github.com/Neel-Aiprog/Gen_AI_Content_Creation)
+🌍 **Live Frontend**: [https://gen-ai-content-creation.vercel.app/](https://gen-ai-content-creation.vercel.app/)
+🚀 **Live Backend (API)**: [https://gen-ai-content-creation.onrender.com/](https://gen-ai-content-creation.onrender.com/)
 
 ---
 
 ## 🚀 Features
 
-- **Multi-Format Generation**: tailored flows for Blogs, Tweets, YouTube Scripts/Descriptions, and Instagram Captions.
+- **Multi-Format Generation**: Tailored flows for Blogs, Tweets, YouTube Scripts/Descriptions, and Instagram Captions.
 - **Rich Text Editing**: Integrated **CKEditor** for polished writing and formatting.
 - **Visuals on Demand**: Automatic image suggestions via Unsplash and Pexels.
 - **PDF Export**: One-click export of generated content to PDF.
@@ -117,22 +117,9 @@ Gen_AI_Content_Creation/
    ```
    The application will be available at `http://localhost:3000`.
 
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit your changes (`git commit -m 'Add amazing feature'`).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request.
-
 ## 👥 Team
 
 - **Nishchay Mittal**
 - **Neel Mhaske**
 - **Leon Lobo**
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
