@@ -1,6 +1,6 @@
 # Gen AI Content Creation
 
-**Gen AI Content Creation** is a comprehensive content generation platform built by **Nishchay Mittal**, **Neel Mhaske**, and **Leon Lobo** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, and Instagram captions.
+**Gen AI Content Creation** is a comprehensive content generation platform built by **Nishchay Mittal[3]**, **Neel Mhaske[1]**, and **Leon Lobo[2]** for the Genesis competition. It leverages the power of generative AI to instantly create high-quality blog posts, tweets, YouTube scripts, descriptions, Reddit posts and Instagram captions.
 
 The platform orchestrates **LangChain** and modern LLMs to generate text while seamlessly integrating with **Unsplash** and **Pexels** APIs to provide relevant, high-resolution imagery.
 
@@ -12,7 +12,7 @@ The platform orchestrates **LangChain** and modern LLMs to generate text while s
 
 ## 🚀 Features
 
-- **Multi-Format Generation**: Tailored flows for Blogs, Tweets, YouTube Scripts/Descriptions, and Instagram Captions.
+- **Multi-Format Generation**: Tailored flows for Blogs, Tweets, YouTube Scripts/Descriptions, Reddit posts and Instagram Captions.
 - **Rich Text Editing**: Integrated **CKEditor** for polished writing and formatting.
 - **Visuals on Demand**: Automatic image suggestions via Unsplash and Pexels.
 - **PDF Export**: One-click export of generated content to PDF.
@@ -33,7 +33,7 @@ The platform orchestrates **LangChain** and modern LLMs to generate text while s
 - **Database**: SQLite (Development) / PostgreSQL (Production ready)
 
 ### APIs & Services
-- **LLM Provider**: (Configurable, e.g., OpenAI, Google Gemini)
+- **LLM Provider**: Groq (Configurable, e.g., OpenAI, Google Gemini)
 - **Image Services**: [Unsplash API](https://unsplash.com/developers), [Pexels API](https://www.pexels.com/api/)
 
 ## 📂 Project Structure
@@ -53,8 +53,8 @@ Gen_AI_Content_Creation/
 - **Node.js**: v16 or higher
 - **Python**: v3.8 or higher
 - **API Keys**:
-  - OpenAI / Gemini (for generation)
-  - Unsplash & Pexels (for images)
+  - Groq (llama-3.1-8b-instant) -- for generation
+  - Unsplash & Pexels -- for images
 
 ### 1️⃣ Backend Setup (Django)
 
@@ -119,7 +119,10 @@ Gen_AI_Content_Creation/
 
 ## 👥 Team
 
-- **Nishchay Mittal**
-- **Neel Mhaske**
-- **Leon Lobo**
+- **[Nishchay Mittal][3]**
+- **[Neel Mhaske][1]**
+- **[Leon Lobo][2]**
 
+[1]: https://www.linkedin.com/in/neel-mhaske-800838343/
+[2]: https://www.linkedin.com/in/leon-lobo-b17023338/
+[3]: https://www.linkedin.com/in/nishchay-mittal-437822324/
