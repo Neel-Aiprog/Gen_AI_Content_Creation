@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import styles from "./page.module.css";
+import styles from "../page.module.css";
 import { useRouter, usePathname } from 'next/navigation';
 
 const waitForImages = (container) =>
