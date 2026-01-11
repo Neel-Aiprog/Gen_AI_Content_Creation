@@ -69,3 +69,23 @@ a {
   background: #00e0ff;
   color: #05060f;
 }
+
+/* Fix Dropdown Visibility */
+.ck.ck-dropdown__panel {
+  background: rgba(2, 6, 23, .95) !important;
+  border: 1px solid rgba(148, 163, 184, .2) !important;
+}
+
+.ck.ck-list {
+  background: transparent !important;
+}
+
+.ck.ck-list__item .ck-button {
+  color: #f1f5f9 !important;
+  background: transparent !important;
+}
+
+.ck.ck-list__item .ck-button:hover,
+.ck.ck-list__item .ck-button.ck-on {
+  background: rgba(51, 65, 85, .8) !important;
+}
