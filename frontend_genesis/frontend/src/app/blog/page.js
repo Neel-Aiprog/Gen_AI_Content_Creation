@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import styles from "../page.module.css";
+import styles from "./page.module.css";
 import { useRouter, usePathname } from 'next/navigation';
 
 const waitForImages = (container) =>
@@ -11,8 +11,8 @@ const waitForImages = (container) =>
       img.complete
         ? Promise.resolve()
         : new Promise(resolve => {
-            img.onload = img.onerror = resolve;
-          })
+          img.onload = img.onerror = resolve;
+        })
     )
   );
 
@@ -40,14 +40,16 @@ function wrapImagesForPDF(container) {
   });
 }
 
+
+
 export function MyButton({ to, children, className = '' }) {
   const router = useRouter();
   const pathname = usePathname();
   const isActive = pathname === to;
 
   return (
-    <button 
-      onClick={() => router.push(to)} 
+    <button
+      onClick={() => router.push(to)}
       className={`${className} ${isActive ? styles.active : ''}`}
     >
       {children}
@@ -87,16 +89,15 @@ function renderTextWithImages(text, images = []) {
 export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
-  const [tone_reddit, setTone_reddit] = useState("scientific");
+  const [tone_blog, setTone_blog] = useState("scientific");
   const [tone_regen, setTone_regen] = useState("scientific");
-  const [article_reddit, setArticle_reddit] = useState("");
-  const [article_regen, setArticle_regen] = useState("");      
+  const [article1, setArticle1] = useState("");
+  const [article_regen, setArticle_regen] = useState("");
   const [pexels, setPexels] = useState([]);
   const [showPexels, setShowPexels] = useState(false);
   const [loading_blog, setLoading_blog] = useState(false);
   const [loading_regen, setLoading_regen] = useState(false);
-  const [error_blog, setError_blog] = useState("");
-  const [error_regen, setError_regen] = useState("");
+  const [error, setError] = useState("");
 
   const editorRef = useRef(null);
   const toolbarRef1 = useRef(null);
@@ -110,25 +111,25 @@ export default function Home() {
     });
   }, []);
 
-  async function handleRedditPost(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!topic1.trim()) return setError_blog("Please enter a topic.");
+    if (!topic1.trim()) return setError("Please enter a topic.");
 
     setLoading_blog(true);
-    setError_blog("");
-    setArticle_reddit("");
+    setError("");
+    setArticle1("");
 
     try {
-      const res = await fetch("/api/reddit-post", {
+      const res = await fetch("/api/generate-blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic1, tone_reddit }),
+        body: JSON.stringify({ topic1, tone_blog }),
       });
 
       const data = await res.json();
-      setArticle_reddit(renderTextWithImages(data.reddit_post, data.images));
+      setArticle1(renderTextWithImages(data.blog, data.images));
     } catch {
-      setError_blog("Backend error.");
+      setError("Backend error.");
     } finally {
       setLoading_blog(false);
     }
@@ -136,10 +137,10 @@ export default function Home() {
 
   async function handleRegen(e) {
     e.preventDefault();
-    if (!topic2.trim()) return setError_regen("Please enter text.");
+    if (!topic2.trim()) return setError("Please enter text.");
 
     setLoading_regen(true);
-    setError_regen("");
+    setError("");
     setArticle_regen("");
     setShowPexels(false);
     setPexels([]);
@@ -154,7 +155,7 @@ export default function Home() {
       const data = await res.json();
       setArticle_regen(data.regened);
     } catch {
-      setError_regen("Backend error.");
+      setError("Backend error.");
     } finally {
       setLoading_regen(false);
     }
@@ -179,60 +180,60 @@ export default function Home() {
         </div>
         <div className={styles.navButtons}>
           <MyButton to="/blog" className={styles.navButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className={styles.icon}
-            aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M32 176C32 134.5 63.6 100.4 104 96.4L104 96L384 96C437 96 480 139 480 192L480 368L304 368C264.2 368 232 400.2 232 440L232 500C232 524.3 212.3 544 188 544C163.7 544 144 524.3 144 500L144 272L80 272C53.5 272 32 250.5 32 224L32 176zM268.8 544C275.9 530.9 280 515.9 280 500L280 440C280 426.7 290.7 416 304 416L552 416C565.3 416 576 426.7 576 440L576 464C576 508.2 540.2 544 496 544L268.8 544zM112 144C94.3 144 80 158.3 80 176L80 224L144 224L144 176C144 158.3 129.7 144 112 144z"
-            />
-          </svg>
-          <span>- Blog</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 640"
+              className={styles.icon}
+              aria-hidden="true"
+            >
+              <path
+                fill="currentColor"
+                d="M32 176C32 134.5 63.6 100.4 104 96.4L104 96L384 96C437 96 480 139 480 192L480 368L304 368C264.2 368 232 400.2 232 440L232 500C232 524.3 212.3 544 188 544C163.7 544 144 524.3 144 500L144 272L80 272C53.5 272 32 250.5 32 224L32 176zM268.8 544C275.9 530.9 280 515.9 280 500L280 440C280 426.7 290.7 416 304 416L552 416C565.3 416 576 426.7 576 440L576 464C576 508.2 540.2 544 496 544L268.8 544zM112 144C94.3 144 80 158.3 80 176L80 224L144 224L144 176C144 158.3 129.7 144 112 144z"
+              />
+            </svg>
+            <span>- Blog</span>
           </MyButton>
           <MyButton to="/tweet" className={styles.navButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className={styles.icon}
-            aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM457.1 180L353.3 298.6L475.4 460L379.8 460L305 362.1L219.3 460L171.8 460L282.8 333.1L165.7 180L263.7 180L331.4 269.5L409.6 180L457.1 180zM419.3 431.6L249.4 206.9L221.1 206.9L392.9 431.6L419.3 431.6z"
-            />
-          </svg>
-          <span>- Tweet</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 640"
+              className={styles.icon}
+              aria-hidden="true"
+            >
+              <path
+                fill="currentColor"
+                d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM457.1 180L353.3 298.6L475.4 460L379.8 460L305 362.1L219.3 460L171.8 460L282.8 333.1L165.7 180L263.7 180L331.4 269.5L409.6 180L457.1 180zM419.3 431.6L249.4 206.9L221.1 206.9L392.9 431.6L419.3 431.6z"
+              />
+            </svg>
+            <span>- Tweet</span>
           </MyButton>
           <MyButton to="/yt_desc" className={styles.navButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className={styles.icon}
-            aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M581.7 188.1C575.5 164.4 556.9 145.8 533.4 139.5C490.9 128 320.1 128 320.1 128C320.1 128 149.3 128 106.7 139.5C83.2 145.8 64.7 164.4 58.4 188.1C47 231 47 320.4 47 320.4C47 320.4 47 409.8 58.4 452.7C64.7 476.3 83.2 494.2 106.7 500.5C149.3 512 320.1 512 320.1 512C320.1 512 490.9 512 533.5 500.5C557 494.2 575.5 476.3 581.8 452.7C593.2 409.8 593.2 320.4 593.2 320.4C593.2 320.4 593.2 231 581.8 188.1zM264.2 401.6L264.2 239.2L406.9 320.4L264.2 401.6z"
-            />
-          </svg>
-          <span>- Description</span>
-        </MyButton>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 640"
+              className={styles.icon}
+              aria-hidden="true"
+            >
+              <path
+                fill="currentColor"
+                d="M581.7 188.1C575.5 164.4 556.9 145.8 533.4 139.5C490.9 128 320.1 128 320.1 128C320.1 128 149.3 128 106.7 139.5C83.2 145.8 64.7 164.4 58.4 188.1C47 231 47 320.4 47 320.4C47 320.4 47 409.8 58.4 452.7C64.7 476.3 83.2 494.2 106.7 500.5C149.3 512 320.1 512 320.1 512C320.1 512 490.9 512 533.5 500.5C557 494.2 575.5 476.3 581.8 452.7C593.2 409.8 593.2 320.4 593.2 320.4C593.2 320.4 593.2 231 581.8 188.1zM264.2 401.6L264.2 239.2L406.9 320.4L264.2 401.6z"
+              />
+            </svg>
+            <span>- Description</span>
+          </MyButton>
           <MyButton to="/yt_script" className={styles.navButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className={styles.icon}
-            aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M581.7 188.1C575.5 164.4 556.9 145.8 533.4 139.5C490.9 128 320.1 128 320.1 128C320.1 128 149.3 128 106.7 139.5C83.2 145.8 64.7 164.4 58.4 188.1C47 231 47 320.4 47 320.4C47 320.4 47 409.8 58.4 452.7C64.7 476.3 83.2 494.2 106.7 500.5C149.3 512 320.1 512 320.1 512C320.1 512 490.9 512 533.5 500.5C557 494.2 575.5 476.3 581.8 452.7C593.2 409.8 593.2 320.4 593.2 320.4C593.2 320.4 593.2 231 581.8 188.1zM264.2 401.6L264.2 239.2L406.9 320.4L264.2 401.6z"
-            />
-          </svg>
-          <span>- Script</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 640"
+              className={styles.icon}
+              aria-hidden="true"
+            >
+              <path
+                fill="currentColor"
+                d="M581.7 188.1C575.5 164.4 556.9 145.8 533.4 139.5C490.9 128 320.1 128 320.1 128C320.1 128 149.3 128 106.7 139.5C83.2 145.8 64.7 164.4 58.4 188.1C47 231 47 320.4 47 320.4C47 320.4 47 409.8 58.4 452.7C64.7 476.3 83.2 494.2 106.7 500.5C149.3 512 320.1 512 320.1 512C320.1 512 490.9 512 533.5 500.5C557 494.2 575.5 476.3 581.8 452.7C593.2 409.8 593.2 320.4 593.2 320.4C593.2 320.4 593.2 231 581.8 188.1zM264.2 401.6L264.2 239.2L406.9 320.4L264.2 401.6z"
+              />
+            </svg>
+            <span>- Script</span>
           </MyButton>
           <MyButton to="/insta_post" className={styles.navButton}>
             <svg
@@ -247,45 +248,45 @@ export default function Home() {
               />
             </svg>
 
-          <span>- Caption</span>
+            <span>- Caption</span>
           </MyButton>
           <MyButton to="/reddit_post" className={styles.navButton}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 640 640"
-            className={styles.icon}
-            aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576L101.1 576C87.4 576 80.6 559.5 90.2 549.8L139 501C92.7 454.7 64 390.7 64 320zM413.6 217.6C437.2 217.6 456.3 198.5 456.3 174.9C456.3 151.3 437.2 132.2 413.6 132.2C393 132.2 375.8 146.8 371.8 166.2C337.3 169.9 310.4 199.2 310.4 234.6L310.4 234.8C272.9 236.4 238.6 247.1 211.4 263.9C201.3 256.1 188.6 251.4 174.9 251.4C141.9 251.4 115.1 278.2 115.1 311.2C115.1 335.2 129.2 355.8 149.5 365.3C151.5 434.7 227.1 490.5 320.1 490.5C413.1 490.5 488.8 434.6 490.7 365.2C510.9 355.6 524.8 335 524.8 311.2C524.8 278.2 498 251.4 465 251.4C451.3 251.4 438.7 256 428.6 263.8C401.2 246.8 366.5 236.1 328.6 234.7L328.6 234.5C328.6 209.1 347.5 188 372 184.6C376.4 203.4 393.3 217.4 413.5 217.4L413.6 217.6zM241.1 310.9C257.8 310.9 270.6 328.5 269.6 350.2C268.6 371.9 256.1 379.8 239.3 379.8C222.5 379.8 207.9 371 208.9 349.3C209.9 327.6 224.3 311 241 311L241.1 310.9zM431.2 349.2C432.2 370.9 417.5 379.7 400.8 379.7C384.1 379.7 371.5 371.8 370.5 350.1C369.5 328.4 382.3 310.8 399 310.8C415.7 310.8 430.2 327.4 431.1 349.1L431.2 349.2zM383.1 405.9C372.8 430.5 348.5 447.8 320.1 447.8C291.7 447.8 267.4 430.5 257.1 405.9C255.9 403 257.9 399.7 261 399.4C279.4 397.5 299.3 396.5 320.1 396.5C340.9 396.5 360.8 397.5 379.2 399.4C382.3 399.7 384.3 403 383.1 405.9z"
-            />
-          </svg>
-          <span>- Post</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 640 640"
+              className={styles.icon}
+              aria-hidden="true"
+            >
+              <path
+                fill="currentColor"
+                d="M64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576L101.1 576C87.4 576 80.6 559.5 90.2 549.8L139 501C92.7 454.7 64 390.7 64 320zM413.6 217.6C437.2 217.6 456.3 198.5 456.3 174.9C456.3 151.3 437.2 132.2 413.6 132.2C393 132.2 375.8 146.8 371.8 166.2C337.3 169.9 310.4 199.2 310.4 234.6L310.4 234.8C272.9 236.4 238.6 247.1 211.4 263.9C201.3 256.1 188.6 251.4 174.9 251.4C141.9 251.4 115.1 278.2 115.1 311.2C115.1 335.2 129.2 355.8 149.5 365.3C151.5 434.7 227.1 490.5 320.1 490.5C413.1 490.5 488.8 434.6 490.7 365.2C510.9 355.6 524.8 335 524.8 311.2C524.8 278.2 498 251.4 465 251.4C451.3 251.4 438.7 256 428.6 263.8C401.2 246.8 366.5 236.1 328.6 234.7L328.6 234.5C328.6 209.1 347.5 188 372 184.6C376.4 203.4 393.3 217.4 413.5 217.4L413.6 217.6zM241.1 310.9C257.8 310.9 270.6 328.5 269.6 350.2C268.6 371.9 256.1 379.8 239.3 379.8C222.5 379.8 207.9 371 208.9 349.3C209.9 327.6 224.3 311 241 311L241.1 310.9zM431.2 349.2C432.2 370.9 417.5 379.7 400.8 379.7C384.1 379.7 371.5 371.8 370.5 350.1C369.5 328.4 382.3 310.8 399 310.8C415.7 310.8 430.2 327.4 431.1 349.1L431.2 349.2zM383.1 405.9C372.8 430.5 348.5 447.8 320.1 447.8C291.7 447.8 267.4 430.5 257.1 405.9C255.9 403 257.9 399.7 261 399.4C279.4 397.5 299.3 396.5 320.1 396.5C340.9 396.5 360.8 397.5 379.2 399.4C382.3 399.7 384.3 403 383.1 405.9z"
+              />
+            </svg>
+            <span>- Post</span>
           </MyButton>
         </div>
       </nav>
 
       {/* MAIN CONTENT */}
       <div className={styles.contentWrapper}>
-        {/* LEFT COLUMN - REDDIT POST GENERATOR */}
+        {/* LEFT COLUMN - BLOG GENERATOR */}
         <div className={styles.column}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
                 <span className={styles.cardIcon}>📝</span>
-                Reddit post Generator
+                Blog Generator
               </h2>
-              <p className={styles.cardSubtitle}>Generate comprehensive reddit post articles</p>
+              <p className={styles.cardSubtitle}>Generate comprehensive blog articles</p>
             </div>
 
-            <form className={styles.form} onSubmit={handleRedditPost}>
+            <form className={styles.form} onSubmit={handleSubmit}>
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Topic</label>
-                <textarea 
-                  className={styles.textarea} 
-                  placeholder="Enter your reddit post topic here..."
-                  value={topic1} 
+                <textarea
+                  className={styles.textarea}
+                  placeholder="Enter your blog topic here..."
+                  value={topic1}
                   onChange={e => setTopic1(e.target.value)}
                   rows={4}
                 />
@@ -293,7 +294,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Tone</label>
-                <select className={styles.select} value={tone_reddit} onChange={e => setTone_reddit(e.target.value)}>
+                <select className={styles.select} value={tone_blog} onChange={e => setTone_blog(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -301,8 +302,8 @@ export default function Home() {
                 </select>
               </div>
 
-              <button 
-                className={`${styles.generateButton} ${loading_blog ? styles.loading : ''}`} 
+              <button
+                className={`${styles.generateButton} ${loading_blog ? styles.loading : ''}`}
                 disabled={loading_blog}
                 type="submit"
               >
@@ -311,17 +312,17 @@ export default function Home() {
                     <span className={styles.spinner}></span>
                     Generating...
                   </>
-                ) : "Generate Reddit post"}
+                ) : "Generate Blog"}
               </button>
             </form>
 
-            {error_blog && <div className={styles.errorMessage}>{error_blog}</div>}
+            {error && <div className={styles.errorMessage}>{error}</div>}
 
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
                 <span>Generated Content</span>
-                {article_reddit && (
-                  <button 
+                {article1 && (
+                  <button
                     className={styles.suggestImagesButton}
                     onClick={loadPexels}
                   >
@@ -331,24 +332,24 @@ export default function Home() {
               </div>
               <div className={styles.editorBox}>
                 <div ref={toolbarRef1} className={styles.toolbarContainer} />
-                {article_reddit && editorLoaded ? (
+                {article1 && editorLoaded ? (
                   <CKEditor
                     editor={editorRef.current}
-                    data={article_reddit}
+                    data={article1}
                     onReady={editor => {
-                    const toolbar = editor.ui.view.toolbar.element;
+                      const toolbar = editor.ui.view.toolbar.element;
 
-                    // keep your existing logic
-                    toolbarRef1.current.innerHTML = "";
-                    toolbarRef1.current.appendChild(toolbar);
+                      // keep your existing logic
+                      toolbarRef1.current.innerHTML = "";
+                      toolbarRef1.current.appendChild(toolbar);
 
-                                        const pdfBtn = document.createElement("button");
+                      const pdfBtn = document.createElement("button");
                       pdfBtn.type = "button";
                       pdfBtn.className = "ck ck-button ck-off";
                       pdfBtn.title = "Export to PDF";
 
                       // PDF icon (SVG)
-                    pdfBtn.innerHTML = `
+                      pdfBtn.innerHTML = `
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 640 640"
@@ -363,29 +364,29 @@ export default function Home() {
                     `;
 
 
-                    pdfBtn.onclick = async () => {
-                      const html2pdf = (await import("html2pdf.js")).default;
+                      pdfBtn.onclick = async () => {
+                        const html2pdf = (await import("html2pdf.js")).default;
 
-                      const content = editor.getData();
-                      const wrapper = document.createElement("div");
-                      wrapper.innerHTML = content;
-                      wrapImagesForPDF(wrapper);
+                        const content = editor.getData();
+                        const wrapper = document.createElement("div");
+                        wrapper.innerHTML = content;
+                        wrapImagesForPDF(wrapper);
 
-                      // Fix colors for PDF
-                      wrapper.style.color = "#000";
-                      wrapper.style.background = "#fff";
-                      wrapper.querySelectorAll("*").forEach(el => {
-                        el.style.color = "#000";
-                      });
+                        // Fix colors for PDF
+                        wrapper.style.color = "#000";
+                        wrapper.style.background = "#fff";
+                        wrapper.querySelectorAll("*").forEach(el => {
+                          el.style.color = "#000";
+                        });
 
-                      // Enable Unsplash images
-                      wrapper.querySelectorAll("img").forEach(img => {
-                        img.setAttribute("crossorigin", "anonymous");
-                      });
+                        // Enable Unsplash images
+                        wrapper.querySelectorAll("img").forEach(img => {
+                          img.setAttribute("crossorigin", "anonymous");
+                        });
 
-                      // Prevent image cutting & scale flexibly
-                    const style = document.createElement("style");
-                    style.innerHTML = `
+                        // Prevent image cutting & scale flexibly
+                        const style = document.createElement("style");
+                        style.innerHTML = `
 
                       img {
                         max-width: 100%;
@@ -402,42 +403,42 @@ export default function Home() {
 
 
                     `;
-                    wrapper.appendChild(style);
+                        wrapper.appendChild(style);
 
-                      // ⏳ Wait for images
-                      await waitForImages(wrapper);
+                        // ⏳ Wait for images
+                        await waitForImages(wrapper);
 
-                      // Generate PDF
-                      html2pdf()
-                        .from(wrapper)
-                        .set({
-                          margin: [15, 10, 15, 10],
-                          filename: "document.pdf",
-                          pagebreak: {
-                          mode: ["css", "legacy"]
-                        },
-                          html2canvas: {
-                            scale: 2,
-                            useCORS: true,
-                            allowTaint: false
-                          },
-                          jsPDF: {
-                            unit: "mm",
-                            format: "a4",
-                            orientation: "portrait"
-                          }
-                        })
-                        .save();
-                    };
+                        // Generate PDF
+                        html2pdf()
+                          .from(wrapper)
+                          .set({
+                            margin: [15, 10, 15, 10],
+                            filename: "document.pdf",
+                            pagebreak: {
+                              mode: ["css", "legacy"]
+                            },
+                            html2canvas: {
+                              scale: 2,
+                              useCORS: true,
+                              allowTaint: false
+                            },
+                            jsPDF: {
+                              unit: "mm",
+                              format: "a4",
+                              orientation: "portrait"
+                            }
+                          })
+                          .save();
+                      };
 
-                    toolbar.appendChild(pdfBtn);
+                      toolbar.appendChild(pdfBtn);
 
-                    // ---------- ADD COPY BUTTON ----------
-                    const copyBtn = document.createElement("button");
-                    copyBtn.type = "button";
-                    copyBtn.title = "Copy";
-                    copyBtn.className = "ck ck-button ck-off";
-                    copyBtn.innerHTML = `
+                      // ---------- ADD COPY BUTTON ----------
+                      const copyBtn = document.createElement("button");
+                      copyBtn.type = "button";
+                      copyBtn.title = "Copy";
+                      copyBtn.className = "ck ck-button ck-off";
+                      copyBtn.innerHTML = `
                       <svg xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 640 640"
                           fill="currentColor"
@@ -447,37 +448,39 @@ export default function Home() {
                       `;
 
 
-                    copyBtn.onclick = async () => {
-                      const html = editor.getData();
-                      const temp = document.createElement("div");
-                      temp.innerHTML = html;
-                      const text = temp.innerText;
 
-                      if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(text);
-                      } else {
-                        // fallback (important)
-                        const textarea = document.createElement("textarea");
-                        textarea.value = text;
-                        textarea.style.position = "fixed";
-                        textarea.style.opacity = "0";
-                        document.body.appendChild(textarea);
-                        textarea.focus();
-                        textarea.select();
-                        document.execCommand("copy");
-                        document.body.removeChild(textarea);
-                      }
-                    };
+                      copyBtn.onclick = async () => {
+                        const html = editor.getData();
+                        const temp = document.createElement("div");
+                        temp.innerHTML = html;
+                        const text = temp.innerText;
 
-                    toolbar.appendChild(copyBtn);
-                  }}
-                    onChange={(e, editor) => setArticle_reddit(editor.getData())}
+                        if (navigator.clipboard && window.isSecureContext) {
+                          await navigator.clipboard.writeText(text);
+                        } else {
+                          // fallback (important)
+                          const textarea = document.createElement("textarea");
+                          textarea.value = text;
+                          textarea.style.position = "fixed";
+                          textarea.style.opacity = "0";
+                          document.body.appendChild(textarea);
+                          textarea.focus();
+                          textarea.select();
+                          document.execCommand("copy");
+                          document.body.removeChild(textarea);
+                        }
+                      };
+
+                      toolbar.appendChild(copyBtn);
+                    }}
+
+                    onChange={(e, editor) => setArticle1(editor.getData())}
                   />
                 ) : (
                   <div className={styles.editorPlaceholder}>
                     <div className={styles.placeholderIcon}>✨</div>
-                    <p>Your generated reddit post will appear here...</p>
-                    <p className={styles.placeholderHint}>Enter a topic and click "Generate Reddit post"</p>
+                    <p>Your generated blog will appear here...</p>
+                    <p className={styles.placeholderHint}>Enter a topic and click "Generate Blog"</p>
                   </div>
                 )}
               </div>
@@ -499,10 +502,10 @@ export default function Home() {
             <form className={styles.form} onSubmit={handleRegen}>
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Text to Regenerate</label>
-                <textarea 
-                  className={styles.textarea} 
+                <textarea
+                  className={styles.textarea}
                   placeholder="Paste text here to rewrite..."
-                  value={topic2} 
+                  value={topic2}
                   onChange={e => setTopic2(e.target.value)}
                   rows={4}
                 />
@@ -518,8 +521,8 @@ export default function Home() {
                 </select>
               </div>
 
-              <button 
-                className={`${styles.generateButton} ${loading_regen ? styles.loading : ''}`} 
+              <button
+                className={`${styles.generateButton} ${loading_regen ? styles.loading : ''}`}
                 disabled={loading_regen}
                 type="submit"
               >
@@ -532,8 +535,6 @@ export default function Home() {
               </button>
             </form>
 
-            {error_regen && <div className={styles.errorMessage}>{error_regen}</div>}
-
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
                 <span>Regenerated Content</span>
@@ -545,11 +546,11 @@ export default function Home() {
                     editor={editorRef.current}
                     data={article_regen}
                     onReady={editor => {
-                    const toolbar = editor.ui.view.toolbar.element;
+                      const toolbar = editor.ui.view.toolbar.element;
 
-                    // keep your existing logic
-                    toolbarRef2.current.innerHTML = "";
-                    toolbarRef2.current.appendChild(toolbar);
+                      // keep your existing logic
+                      toolbarRef2.current.innerHTML = "";
+                      toolbarRef2.current.appendChild(toolbar);
 
                       const pdfBtn = document.createElement("button");
                       pdfBtn.type = "button";
@@ -557,7 +558,7 @@ export default function Home() {
                       pdfBtn.title = "Export to PDF";
 
                       // PDF icon (SVG)
-                    pdfBtn.innerHTML = `
+                      pdfBtn.innerHTML = `
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 640 640"
@@ -572,29 +573,29 @@ export default function Home() {
                     `;
 
 
-                    pdfBtn.onclick = async () => {
-                      const html2pdf = (await import("html2pdf.js")).default;
+                      pdfBtn.onclick = async () => {
+                        const html2pdf = (await import("html2pdf.js")).default;
 
-                      const content = editor.getData();
-                      const wrapper = document.createElement("div");
-                      wrapper.innerHTML = content;
-                      wrapImagesForPDF(wrapper);
+                        const content = editor.getData();
+                        const wrapper = document.createElement("div");
+                        wrapper.innerHTML = content;
+                        wrapImagesForPDF(wrapper);
 
-                      // Fix colors for PDF
-                      wrapper.style.color = "#000";
-                      wrapper.style.background = "#fff";
-                      wrapper.querySelectorAll("*").forEach(el => {
-                        el.style.color = "#000";
-                      });
+                        // Fix colors for PDF
+                        wrapper.style.color = "#000";
+                        wrapper.style.background = "#fff";
+                        wrapper.querySelectorAll("*").forEach(el => {
+                          el.style.color = "#000";
+                        });
 
-                      // Enable Unsplash images
-                      wrapper.querySelectorAll("img").forEach(img => {
-                        img.setAttribute("crossorigin", "anonymous");
-                      });
+                        // Enable Unsplash images
+                        wrapper.querySelectorAll("img").forEach(img => {
+                          img.setAttribute("crossorigin", "anonymous");
+                        });
 
-                      // Prevent image cutting & scale flexibly
-                    const style = document.createElement("style");
-                    style.innerHTML = `
+                        // Prevent image cutting & scale flexibly
+                        const style = document.createElement("style");
+                        style.innerHTML = `
 
                       img {
                         max-width: 100%;
@@ -611,42 +612,42 @@ export default function Home() {
 
 
                     `;
-                    wrapper.appendChild(style);
+                        wrapper.appendChild(style);
 
-                      // ⏳ Wait for images
-                      await waitForImages(wrapper);
+                        // ⏳ Wait for images
+                        await waitForImages(wrapper);
 
-                      // Generate PDF
-                      html2pdf()
-                        .from(wrapper)
-                        .set({
-                          margin: [15, 10, 15, 10],
-                          filename: "document.pdf",
-                          pagebreak: {
-                          mode: ["css", "legacy"]
-                        },
-                          html2canvas: {
-                            scale: 2,
-                            useCORS: true,
-                            allowTaint: false
-                          },
-                          jsPDF: {
-                            unit: "mm",
-                            format: "a4",
-                            orientation: "portrait"
-                          }
-                        })
-                        .save();
-                    };
+                        // Generate PDF
+                        html2pdf()
+                          .from(wrapper)
+                          .set({
+                            margin: [15, 10, 15, 10],
+                            filename: "document.pdf",
+                            pagebreak: {
+                              mode: ["css", "legacy"]
+                            },
+                            html2canvas: {
+                              scale: 2,
+                              useCORS: true,
+                              allowTaint: false
+                            },
+                            jsPDF: {
+                              unit: "mm",
+                              format: "a4",
+                              orientation: "portrait"
+                            }
+                          })
+                          .save();
+                      };
 
-                    toolbar.appendChild(pdfBtn);
+                      toolbar.appendChild(pdfBtn);
 
-                    // ---------- ADD COPY BUTTON ----------
-                    const copyBtn = document.createElement("button");
-                    copyBtn.type = "button";
-                    copyBtn.title = "Copy";
-                    copyBtn.className = "ck ck-button ck-off";
-                    copyBtn.innerHTML = `
+                      // ---------- ADD COPY BUTTON ----------
+                      const copyBtn = document.createElement("button");
+                      copyBtn.type = "button";
+                      copyBtn.title = "Copy";
+                      copyBtn.className = "ck ck-button ck-off";
+                      copyBtn.innerHTML = `
                       <svg xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 640 640"
                           fill="currentColor"
@@ -655,31 +656,30 @@ export default function Home() {
                       </svg>
                       `;
 
+                      copyBtn.onclick = async () => {
+                        const html = editor.getData();
+                        const temp = document.createElement("div");
+                        temp.innerHTML = html;
+                        const text = temp.innerText;
 
-                    copyBtn.onclick = async () => {
-                      const html = editor.getData();
-                      const temp = document.createElement("div");
-                      temp.innerHTML = html;
-                      const text = temp.innerText;
+                        if (navigator.clipboard && window.isSecureContext) {
+                          await navigator.clipboard.writeText(text);
+                        } else {
+                          // fallback (important)
+                          const textarea = document.createElement("textarea");
+                          textarea.value = text;
+                          textarea.style.position = "fixed";
+                          textarea.style.opacity = "0";
+                          document.body.appendChild(textarea);
+                          textarea.focus();
+                          textarea.select();
+                          document.execCommand("copy");
+                          document.body.removeChild(textarea);
+                        }
+                      };
 
-                      if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(text);
-                      } else {
-                        // fallback (important)
-                        const textarea = document.createElement("textarea");
-                        textarea.value = text;
-                        textarea.style.position = "fixed";
-                        textarea.style.opacity = "0";
-                        document.body.appendChild(textarea);
-                        textarea.focus();
-                        textarea.select();
-                        document.execCommand("copy");
-                        document.body.removeChild(textarea);
-                      }
-                    };
-
-                    toolbar.appendChild(copyBtn);
-                  }}
+                      toolbar.appendChild(copyBtn);
+                    }}
                     onChange={(e, editor) => setArticle_regen(editor.getData())}
                   />
                 ) : (
@@ -704,14 +704,14 @@ export default function Home() {
               Image Suggestions from Pexels
               <span className={styles.drawerCount}>({pexels.length} images)</span>
             </div>
-            <button 
+            <button
               className={styles.drawerClose}
               onClick={() => setShowPexels(false)}
             >
               ✕
             </button>
           </div>
-          
+
           <div className={styles.drawerContent}>
             <div className={styles.drawerGrid}>
               {pexels.map((img, i) => (
