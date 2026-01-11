@@ -89,12 +89,14 @@ function renderTextWithImages(text, images = []) {
 export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
-  const [tone, setTone] = useState("scientific");
+  const [tone_blog, setTone_blog] = useState("scientific");
+  const [tone_regen, setTone_regen] = useState("scientific");
   const [article1, setArticle1] = useState("");
   const [article_regen, setArticle_regen] = useState("");      
   const [pexels, setPexels] = useState([]);
   const [showPexels, setShowPexels] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading_blog, setLoading_blog] = useState(false);
+  const [loading_regen, setLoading_regen] = useState(false);
   const [error, setError] = useState("");
 
   const editorRef = useRef(null);
@@ -113,7 +115,7 @@ export default function Home() {
     e.preventDefault();
     if (!topic1.trim()) return setError("Please enter a topic.");
 
-    setLoading(true);
+    setLoading_blog(true);
     setError("");
     setArticle1("");
 
@@ -121,7 +123,7 @@ export default function Home() {
       const res = await fetch("/api/generate-blog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic1, tone }),
+        body: JSON.stringify({ topic1, tone_blog }),
       });
 
       const data = await res.json();
@@ -129,7 +131,7 @@ export default function Home() {
     } catch {
       setError("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_blog(false);
     }
   }
 
@@ -137,7 +139,7 @@ export default function Home() {
     e.preventDefault();
     if (!topic2.trim()) return setError("Please enter text.");
 
-    setLoading(true);
+    setLoading_regen(true);
     setError("");
     setArticle_regen("");
     setShowPexels(false);
@@ -147,7 +149,7 @@ export default function Home() {
       const res = await fetch("/api/regenerate-text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic2, tone }),
+        body: JSON.stringify({ topic2, tone_regen }),
       });
 
       const data = await res.json();
@@ -155,7 +157,7 @@ export default function Home() {
     } catch {
       setError("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_regen(false);
     }
   }
 
@@ -292,7 +294,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_blog} onChange={e => setTone_blog(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -301,11 +303,11 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_blog ? styles.loading : ''}`} 
+                disabled={loading_blog}
                 type="submit"
               >
-                {loading ? (
+                {loading_blog ? (
                   <>
                     <span className={styles.spinner}></span>
                     Generating...
@@ -511,7 +513,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Target Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_regen} onChange={e => setTone_regen(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -520,11 +522,11 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_regen ? styles.loading : ''}`} 
+                disabled={loading_regen}
                 type="submit"
               >
-                {loading ? (
+                {loading_regen ? (
                   <>
                     <span className={styles.spinner}></span>
                     Regenerating...

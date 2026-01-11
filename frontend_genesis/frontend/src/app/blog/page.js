@@ -40,8 +40,6 @@ function wrapImagesForPDF(container) {
   });
 }
 
-
-
 export function MyButton({ to, children, className = '' }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -89,13 +87,16 @@ function renderTextWithImages(text, images = []) {
 export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
-  const [tone, setTone] = useState("scientific");
-  const [article1, setArticle1] = useState("");
+  const [tone_reddit, setTone_reddit] = useState("scientific");
+  const [tone_regen, setTone_regen] = useState("scientific");
+  const [article_reddit, setArticle_reddit] = useState("");
   const [article_regen, setArticle_regen] = useState("");      
   const [pexels, setPexels] = useState([]);
   const [showPexels, setShowPexels] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading_blog, setLoading_blog] = useState(false);
+  const [loading_regen, setLoading_regen] = useState(false);
+  const [error_blog, setError_blog] = useState("");
+  const [error_regen, setError_regen] = useState("");
 
   const editorRef = useRef(null);
   const toolbarRef1 = useRef(null);
@@ -109,36 +110,36 @@ export default function Home() {
     });
   }, []);
 
-  async function handleSubmit(e) {
+  async function handleRedditPost(e) {
     e.preventDefault();
-    if (!topic1.trim()) return setError("Please enter a topic.");
+    if (!topic1.trim()) return setError_blog("Please enter a topic.");
 
-    setLoading(true);
-    setError("");
-    setArticle1("");
+    setLoading_blog(true);
+    setError_blog("");
+    setArticle_reddit("");
 
     try {
-      const res = await fetch("/api/generate-blog", {
+      const res = await fetch("/api/reddit-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic1, tone }),
+        body: JSON.stringify({ topic1, tone_reddit }),
       });
 
       const data = await res.json();
-      setArticle1(renderTextWithImages(data.blog, data.images));
+      setArticle_reddit(renderTextWithImages(data.reddit_post, data.images));
     } catch {
-      setError("Backend error.");
+      setError_blog("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_blog(false);
     }
   }
 
   async function handleRegen(e) {
     e.preventDefault();
-    if (!topic2.trim()) return setError("Please enter text.");
+    if (!topic2.trim()) return setError_regen("Please enter text.");
 
-    setLoading(true);
-    setError("");
+    setLoading_regen(true);
+    setError_regen("");
     setArticle_regen("");
     setShowPexels(false);
     setPexels([]);
@@ -147,15 +148,15 @@ export default function Home() {
       const res = await fetch("/api/regenerate-text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic2, tone }),
+        body: JSON.stringify({ topic2, tone_regen }),
       });
 
       const data = await res.json();
       setArticle_regen(data.regened);
     } catch {
-      setError("Backend error.");
+      setError_regen("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_regen(false);
     }
   }
 
@@ -267,23 +268,23 @@ export default function Home() {
 
       {/* MAIN CONTENT */}
       <div className={styles.contentWrapper}>
-        {/* LEFT COLUMN - BLOG GENERATOR */}
+        {/* LEFT COLUMN - REDDIT POST GENERATOR */}
         <div className={styles.column}>
           <div className={styles.card}>
             <div className={styles.cardHeader}>
               <h2 className={styles.cardTitle}>
                 <span className={styles.cardIcon}>📝</span>
-                Blog Generator
+                Reddit post Generator
               </h2>
-              <p className={styles.cardSubtitle}>Generate comprehensive blog articles</p>
+              <p className={styles.cardSubtitle}>Generate comprehensive reddit post articles</p>
             </div>
 
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <form className={styles.form} onSubmit={handleRedditPost}>
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Topic</label>
                 <textarea 
                   className={styles.textarea} 
-                  placeholder="Enter your blog topic here..."
+                  placeholder="Enter your reddit post topic here..."
                   value={topic1} 
                   onChange={e => setTopic1(e.target.value)}
                   rows={4}
@@ -292,7 +293,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_reddit} onChange={e => setTone_reddit(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -301,25 +302,25 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_blog ? styles.loading : ''}`} 
+                disabled={loading_blog}
                 type="submit"
               >
-                {loading ? (
+                {loading_blog ? (
                   <>
                     <span className={styles.spinner}></span>
                     Generating...
                   </>
-                ) : "Generate Blog"}
+                ) : "Generate Reddit post"}
               </button>
             </form>
 
-            {error && <div className={styles.errorMessage}>{error}</div>}
+            {error_blog && <div className={styles.errorMessage}>{error_blog}</div>}
 
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
                 <span>Generated Content</span>
-                {article1 && (
+                {article_reddit && (
                   <button 
                     className={styles.suggestImagesButton}
                     onClick={loadPexels}
@@ -330,18 +331,18 @@ export default function Home() {
               </div>
               <div className={styles.editorBox}>
                 <div ref={toolbarRef1} className={styles.toolbarContainer} />
-                {article1 && editorLoaded ? (
+                {article_reddit && editorLoaded ? (
                   <CKEditor
                     editor={editorRef.current}
-                    data={article1}
-                   onReady={editor => {
+                    data={article_reddit}
+                    onReady={editor => {
                     const toolbar = editor.ui.view.toolbar.element;
 
                     // keep your existing logic
                     toolbarRef1.current.innerHTML = "";
                     toolbarRef1.current.appendChild(toolbar);
 
-                    const pdfBtn = document.createElement("button");
+                                        const pdfBtn = document.createElement("button");
                       pdfBtn.type = "button";
                       pdfBtn.className = "ck ck-button ck-off";
                       pdfBtn.title = "Export to PDF";
@@ -446,7 +447,6 @@ export default function Home() {
                       `;
 
 
-
                     copyBtn.onclick = async () => {
                       const html = editor.getData();
                       const temp = document.createElement("div");
@@ -471,14 +471,13 @@ export default function Home() {
 
                     toolbar.appendChild(copyBtn);
                   }}
-
-                    onChange={(e, editor) => setArticle1(editor.getData())}
+                    onChange={(e, editor) => setArticle_reddit(editor.getData())}
                   />
                 ) : (
                   <div className={styles.editorPlaceholder}>
                     <div className={styles.placeholderIcon}>✨</div>
-                    <p>Your generated blog will appear here...</p>
-                    <p className={styles.placeholderHint}>Enter a topic and click "Generate Blog"</p>
+                    <p>Your generated reddit post will appear here...</p>
+                    <p className={styles.placeholderHint}>Enter a topic and click "Generate Reddit post"</p>
                   </div>
                 )}
               </div>
@@ -511,7 +510,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Target Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_regen} onChange={e => setTone_regen(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -520,11 +519,11 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_regen ? styles.loading : ''}`} 
+                disabled={loading_regen}
                 type="submit"
               >
-                {loading ? (
+                {loading_regen ? (
                   <>
                     <span className={styles.spinner}></span>
                     Regenerating...
@@ -532,6 +531,8 @@ export default function Home() {
                 ) : "Regenerate Text"}
               </button>
             </form>
+
+            {error_regen && <div className={styles.errorMessage}>{error_regen}</div>}
 
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
@@ -543,14 +544,14 @@ export default function Home() {
                   <CKEditor
                     editor={editorRef.current}
                     data={article_regen}
-                   onReady={editor => {
+                    onReady={editor => {
                     const toolbar = editor.ui.view.toolbar.element;
 
                     // keep your existing logic
                     toolbarRef2.current.innerHTML = "";
                     toolbarRef2.current.appendChild(toolbar);
 
-                    const pdfBtn = document.createElement("button");
+                      const pdfBtn = document.createElement("button");
                       pdfBtn.type = "button";
                       pdfBtn.className = "ck ck-button ck-off";
                       pdfBtn.title = "Export to PDF";
@@ -640,7 +641,7 @@ export default function Home() {
 
                     toolbar.appendChild(pdfBtn);
 
-                   // ---------- ADD COPY BUTTON ----------
+                    // ---------- ADD COPY BUTTON ----------
                     const copyBtn = document.createElement("button");
                     copyBtn.type = "button";
                     copyBtn.title = "Copy";
@@ -653,6 +654,7 @@ export default function Home() {
                         <path d="M480 400L288 400C279.2 400 272 392.8 272 384L272 128C272 119.2 279.2 112 288 112L421.5 112C425.7 112 429.8 113.7 432.8 116.7L491.3 175.2C494.3 178.2 496 182.3 496 186.5L496 384C496 392.8 488.8 400 480 400zM288 448L480 448C515.3 448 544 419.3 544 384L544 186.5C544 169.5 537.3 153.2 525.3 141.2L466.7 82.7C454.7 70.7 438.5 64 421.5 64L288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L368 496L368 512C368 520.8 360.8 528 352 528L160 528C151.2 528 144 520.8 144 512L144 256C144 247.2 151.2 240 160 240L176 240L176 192L160 192z"/>
                       </svg>
                       `;
+
 
                     copyBtn.onclick = async () => {
                       const html = editor.getData();

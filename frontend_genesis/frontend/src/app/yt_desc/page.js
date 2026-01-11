@@ -60,11 +60,14 @@ export function MyButton({ to, children, className = '' }) {
 export default function Home() {
   const [topic1, setTopic1] = useState("");
   const [topic2, setTopic2] = useState("");
-  const [tone, setTone] = useState("casual");
+  const [tone_desc, setTone_desc] = useState("casual");
+  const [tone_regen, setTone_regen] = useState("casual");
   const [article_desc, setArticle_desc] = useState("");
   const [article_regen, setArticle_regen] = useState("");  
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading_desc, setLoading_desc] = useState(false);
+  const [loading_regen, setLoading_regen] = useState(false);
+  const [error_desc, setError_desc] = useState("");
+  const [error_regen, setError_regen] = useState("");
 
   const editorRef = useRef(null);
   const toolbarRef1 = useRef(null);
@@ -80,34 +83,34 @@ export default function Home() {
 
  async function handleDescription(e) {
     e.preventDefault();
-    if (!topic1.trim()) return setError("Please enter a topic.");
+    if (!topic1.trim()) return setError_desc("Please enter a topic.");
 
-    setLoading(true);
-    setError("");
+    setLoading_desc(true);
+    setError_desc("");
     setArticle_desc("");
 
     try {
       const res = await fetch("/api/youtube-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic1, tone }),
+        body: JSON.stringify({ topic1, tone_desc }),
       });
 
       const data = await res.json();
       setArticle_desc(data.description);
     } catch {
-      setError("Backend error.");
+      setError_desc("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_desc(false);
     }
   }
 
   async function handleRegen(e) {
     e.preventDefault();
-    if (!topic2.trim()) return setError("Please enter text.");
+    if (!topic2.trim()) return setError_regen("Please enter text.");
 
-    setLoading(true);
-    setError("");
+    setLoading_regen(true);
+    setError_regen("");
     setArticle_regen("");
 
     try {
@@ -120,9 +123,9 @@ export default function Home() {
       const data = await res.json();
       setArticle_regen(data.regened);
     } catch {
-      setError("Backend error.");
+      setError_regen("Backend error.");
     } finally {
-      setLoading(false);
+      setLoading_regen(false);
     }
   }
 
@@ -251,7 +254,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_desc} onChange={e => setTone_desc(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -260,11 +263,11 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_desc ? styles.loading : ''}`} 
+                disabled={loading_desc}
                 type="submit"
               >
-                {loading ? (
+                {loading_desc ? (
                   <>
                     <span className={styles.spinner}></span>
                     Generating...
@@ -273,7 +276,7 @@ export default function Home() {
               </button>
             </form>
 
-            {error && <div className={styles.errorMessage}>{error}</div>}
+            {error_desc && <div className={styles.errorMessage}>{error_desc}</div>}
 
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
@@ -460,7 +463,7 @@ export default function Home() {
 
               <div className={styles.inputGroup}>
                 <label className={styles.inputLabel}>Target Tone</label>
-                <select className={styles.select} value={tone} onChange={e => setTone(e.target.value)}>
+                <select className={styles.select} value={tone_regen} onChange={e => setTone_regen(e.target.value)}>
                   <option value="scientific">Scientific</option>
                   <option value="professional">Professional</option>
                   <option value="casual">Casual</option>
@@ -469,11 +472,11 @@ export default function Home() {
               </div>
 
               <button 
-                className={`${styles.generateButton} ${loading ? styles.loading : ''}`} 
-                disabled={loading}
+                className={`${styles.generateButton} ${loading_regen ? styles.loading : ''}`} 
+                disabled={loading_regen}
                 type="submit"
               >
-                {loading ? (
+                {loading_regen ? (
                   <>
                     <span className={styles.spinner}></span>
                     Regenerating...
@@ -481,6 +484,8 @@ export default function Home() {
                 ) : "Regenerate Text"}
               </button>
             </form>
+
+            {error_regen && <div className={styles.errorMessage}>{error_regen}</div>}
 
             <div className={styles.editorContainer}>
               <div className={styles.editorHeader}>
